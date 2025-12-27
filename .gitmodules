@@ -1,3 +1,6 @@
 [submodule "vendor/pico"]
 	path = vendor/pico
 	url = https://github.com/picocss/pico.git
+[submodule "vendor/complete-hsk-vocabulary"]
+	path = vendor/complete-hsk-vocabulary
+	url = https://github.com/drkameleon/complete-hsk-vocabulary.git

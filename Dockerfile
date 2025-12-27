@@ -1,6 +1,6 @@
 FROM node:24-alpine
 
-RUN apk add --no-cache tini
+RUN apk add --no-cache tini sqlite
 
 WORKDIR /app
 

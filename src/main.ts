@@ -20,8 +20,8 @@ export const setupFastify = async (): Promise<FastifyInstance> => {
     logger,
   });
   fastify.register(fastifyStatic, {
-    root: join(__dirname, '..', 'public'),
-  })
+    root: join(__dirname, "..", "public"),
+  });
   return fastify;
 };
 
