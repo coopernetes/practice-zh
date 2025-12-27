@@ -27,8 +27,10 @@ export const setupFastify = async (): Promise<FastifyInstance> => {
 
 export const start = async () => {
   const fastify = await setupFastify();
-  const port = process.env?.PORT ? parseInt(process.env.PORT, 10) : 8080;
+  const port = process.env?.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  const host = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";
   fastify.listen({
     port,
+    host,
   });
 };
