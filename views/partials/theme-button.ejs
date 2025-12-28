@@ -1,0 +1,10 @@
+<button class="outline" hx-get="/toggle-theme"
+  hx-vals='js:{ "current": document.documentElement.getAttribute("data-theme") }' hx-target="#theme-toggle-wrapper"
+  hx-swap="innerHTML">
+  <%= theme==='dark' ? '☀️ Light' : '🌙 Dark' %>
+</button>
+
+<script>
+  // This runs every time HTMX swaps this button in
+  document.documentElement.setAttribute('data-theme', '<%= theme %>');
+</script>

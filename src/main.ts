@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { fastifyStatic } from "@fastify/static";
 import { fastifyView } from "@fastify/view";
 import routes from "./routes.js";
@@ -7,6 +7,12 @@ import { join } from "node:path";
 import { pino } from "pino";
 
 const __dirname = import.meta.dirname;
+
+declare module "fastify" {
+  interface FastifyReply {
+    render(viewPath: string, data?: object): void;
+  }
+}
 
 export const setupFastify = async (): Promise<FastifyInstance> => {
   let logger: object | boolean = {

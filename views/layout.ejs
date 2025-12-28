@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/public/css/pico.slate.min.css">
+  <script src="/public/js/htmx.min.js"></script>
+  <title>Practice 中文</title>
+  <script>
+    if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  </script>
+</head>
+
+<body>
+  <header class="container-fluid">
+    <h1>Practice 中文</h1>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li>
+          <a href="/new" hx-get="/new" hx-target="#content-area" hx-push-url="true">New test</a>
+        </li>
+        <li><a href="/progress">Progress</a></li>
+        <li><a href="/settings">Settings</a></li>
+      </ul>
+      <span id="theme-toggle-wrapper">
+        <%- include('partials/theme-button', { theme: 'dark' }) %>
+      </span>
+    </nav>
+  </header>
+
+  <main class="container-fluid" id="content-area">
+    <%- body %>
+  </main>
+
+  <footer class="container-fluid">
+    <hr>
+    <p>&copy; 2025 Thomas Cooper. <i>Fear is the mind killer.</i></p>
+  </footer>
+</body>
+
+</html>
