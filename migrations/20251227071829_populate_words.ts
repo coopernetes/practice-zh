@@ -41,25 +41,27 @@ const extractHskLevel = (levels: string[], prefix: string) => {
   }
 };
 
+const fixupUmlaut = (pinyin: string) => {
+  return pinyin.replace(/u:3/g, "ǚ");
+};
+
 export async function up(knex: Knex): Promise<void> {
   const rawData: MinWordEntry[] = JSON.parse(readFileSync(wordlist, "utf-8"));
   await knex.batchInsert(
-    'words',
+    "words",
     rawData.map((word) => ({
       simplified_chars: word.s,
       traditional_chars: JSON.stringify(word.f.map((f) => f.t)),
-      pinyin: JSON.stringify(word.f.map((f) => f.i.y)),
+      pinyin: JSON.stringify(word.f.map((f) => fixupUmlaut(f.i.y))),
       pinyin_numeric: JSON.stringify(word.f.map((f) => f.i.n)),
       meanings: JSON.stringify(word.f.map((f) => f.m)),
       hsk2_level: extractHskLevel(word.l, "o"),
-      hsk3_level: extractHskLevel(word.l, "n")
+      hsk3_level: extractHskLevel(word.l, "n"),
     })),
     100
   );
 }
 
-
 export async function down(knex: Knex): Promise<void> {
-  return knex('words').del();
+  return knex("words").del();
 }
-

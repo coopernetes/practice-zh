@@ -4,3 +4,6 @@
 [submodule "vendor/complete-hsk-vocabulary"]
 	path = vendor/complete-hsk-vocabulary
 	url = https://github.com/drkameleon/complete-hsk-vocabulary.git
+[submodule "vendor/htmx"]
+	path = vendor/htmx
+	url = https://github.com/bigskysoftware/htmx.git

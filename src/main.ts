@@ -1,6 +1,8 @@
 import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
 import { fastifyStatic } from "@fastify/static";
+import { fastifyView } from "@fastify/view";
+import routes from "./routes.js";
 import { join } from "node:path";
 import { pino } from "pino";
 
@@ -21,7 +23,15 @@ export const setupFastify = async (): Promise<FastifyInstance> => {
   });
   fastify.register(fastifyStatic, {
     root: join(__dirname, "..", "public"),
+    prefix: "/public/",
   });
+  fastify.register(fastifyView, {
+    engine: {
+      ejs: await import("ejs"),
+    },
+    root: join(__dirname, "..", "views"),
+  });
+  fastify.register(routes);
   return fastify;
 };
 
