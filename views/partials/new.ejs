@@ -1,7 +1,17 @@
-<h2>This content brought to you by:</h2>
-<ul>
-  <li>User-Agent: <%= userAgent %>
-  </li>
-  <li>Current time: <%= time %>
-  </li>
-</ul>
+<section>
+  <header>
+    <h2>Phrases in Chinese</h2>
+  </header>
+  <article hx-get="/phrase" hx-target="this" hx-swap="innerHTML">
+    <p>Click here for a phrase...</p>
+  </article>
+  <footer>
+    <p>This content brought to you by:</p>
+    <ul>
+      <li>User-Agent: <%= userAgent %>
+      </li>
+      <li>Current time: <%= time %>
+      </li>
+    </ul>
+  </footer>
+</section>
