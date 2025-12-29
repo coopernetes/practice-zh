@@ -24,6 +24,8 @@ interface MinWordEntry {
   s: string;
   /** HSK level formatted as "{version}{difficulty_level}" (n=HSK 3.0, o=HSK 2.0) */
   l: string[];
+  /** Part of speech descriptor */
+  p: string[];
   /** List of transcriptions of the word */
   f: EntryForm[];
 }
@@ -45,6 +47,54 @@ const fixupUmlaut = (pinyin: string) => {
   return pinyin.replace(/u:3/g, "ǚ");
 };
 
+const partOfSpeech = (code: string) => {
+  const posMap: Record<string, string> = {
+    a: "adjective",
+    ad: "adjective as adverbial",
+    ag: "adjective morpheme",
+    an: "adjective with nominal function",
+    b: "non-predicate adjective",
+    c: "conjunction",
+    d: "adverb",
+    dg: "adverb morpheme",
+    e: "interjection",
+    f: "directional locality",
+    g: "morpheme",
+    h: "prefix",
+    i: "idiom",
+    j: "abbreviation",
+    k: "suffix",
+    l: "fixed expressions",
+    m: "numeral",
+    mg: "numeric morpheme",
+    n: "common noun",
+    ng: "noun morpheme",
+    nr: "personal name",
+    ns: "place name",
+    nt: "organization name",
+    nx: "nominal character string",
+    nz: "other proper noun",
+    o: "onomatopoeia",
+    p: "preposition",
+    q: "classifier",
+    r: "pronoun",
+    rg: "pronoun morpheme",
+    s: "space word",
+    t: "time word",
+    tg: "time word morpheme",
+    u: "auxiliary",
+    v: "verb",
+    vd: "verb as adverbial",
+    vg: "verb morpheme",
+    vn: "verb with nominal function",
+    w: "symbol and non-sentential punctuation",
+    x: "unclassified items",
+    y: "modal particle",
+    z: "descriptive",
+  };
+  return posMap[code] || code;
+};
+
 export async function up(knex: Knex): Promise<void> {
   const rawData: MinWordEntry[] = JSON.parse(readFileSync(wordlist, "utf-8"));
   await knex.batchInsert(
@@ -55,6 +105,7 @@ export async function up(knex: Knex): Promise<void> {
       pinyin: JSON.stringify(word.f.map((f) => fixupUmlaut(f.i.y))),
       pinyin_numeric: JSON.stringify(word.f.map((f) => f.i.n)),
       meanings: JSON.stringify(word.f.map((f) => f.m)),
+      part_of_speech: JSON.stringify(word.p.map((pos) => partOfSpeech(pos))),
       hsk2_level: extractHskLevel(word.l, "o"),
       hsk3_level: extractHskLevel(word.l, "n"),
     })),

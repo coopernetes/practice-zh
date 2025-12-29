@@ -12,6 +12,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string("pinyin").notNullable();
     table.string("pinyin_numeric").notNullable();
     table.text("meanings").notNullable();
+    table.text("part_of_speech").notNullable();
     table.string("hsk2_level").nullable();
     table.string("hsk3_level").nullable();
   });
