@@ -7,3 +7,6 @@ rmSync(join(__dirname, "..", "dist"), {
   recursive: true,
   force: true,
 });
+
+rmSync(join(__dirname, "..", "practice-zh.sqlite3"));
+console.log("Cleaned up dist/ and practice-zh.sqlite3");

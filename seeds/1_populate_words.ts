@@ -95,7 +95,7 @@ const partOfSpeech = (code: string) => {
   return posMap[code] || code;
 };
 
-export async function up(knex: Knex): Promise<void> {
+export async function seed(knex: Knex): Promise<void> {
   const rawData: MinWordEntry[] = JSON.parse(readFileSync(wordlist, "utf-8"));
   await knex.batchInsert(
     "words",
@@ -111,8 +111,4 @@ export async function up(knex: Knex): Promise<void> {
     })),
     100
   );
-}
-
-export async function down(knex: Knex): Promise<void> {
-  return knex("words").del();
 }
