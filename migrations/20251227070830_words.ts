@@ -1,6 +1,5 @@
 import type { Knex } from "knex";
 
-
 export async function up(knex: Knex): Promise<void> {
   if (await knex.schema.hasTable("words")) {
     return;
@@ -13,13 +12,11 @@ export async function up(knex: Knex): Promise<void> {
     table.string("pinyin_numeric").notNullable();
     table.text("meanings").notNullable();
     table.text("part_of_speech").notNullable();
-    table.string("hsk2_level").nullable();
-    table.string("hsk3_level").nullable();
+    table.integer("hsk2_level").nullable();
+    table.integer("hsk3_level").nullable();
   });
 }
-
 
 export async function down(knex: Knex): Promise<void> {
   return knex.schema.dropTableIfExists("words");
 }
-

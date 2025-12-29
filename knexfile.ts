@@ -6,7 +6,7 @@ const config: { [key: string]: Knex.Config } = {
   development: {
     client: "better-sqlite3",
     connection: {
-      filename: "./practice-zh.sqlite3"
+      filename: "./practice-zh.sqlite3",
     },
     useNullAsDefault: true,
   },
@@ -17,16 +17,16 @@ const config: { [key: string]: Knex.Config } = {
       user: "postgres",
       password: "postgres",
       host: process.env.POSTGRES_HOST || "localhost",
-      port: Number(process.env.POSTGRES_PORT) || 5432
+      port: Number(process.env.POSTGRES_PORT) || 5432,
     },
     pool: {
       min: 2,
-      max: 10
+      max: 10,
     },
     migrations: {
-      tableName: "knex_migrations"
-    }
-  }
+      tableName: "knex_migrations",
+    },
+  },
 };
 
 export default config;

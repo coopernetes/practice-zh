@@ -19,7 +19,7 @@
     <h1>Practice 中文</h1>
     <nav>
       <ul>
-        <li><a href="/">Home</a></li>
+        <li><a href="/" hx-get="/" hx-target="#content-area" hx-push-url="true">Home</a></li>
         <li>
           <a href="/new" hx-get="/new" hx-target="#content-area" hx-push-url="true">New test</a>
         </li>
@@ -38,7 +38,8 @@
 
   <footer class="container-fluid">
     <hr>
-    <p>&copy; 2025 Thomas Cooper. <i>Fear is the mind killer.</i></p>
+    <p>Built on <a href="https://www.fastify.dev/">Fastify</a>, <a href="https://htmx.org/">htmx</a> &amp; <a
+        href="https://picocss.com/">pico</a>.</p>
   </footer>
 </body>
 

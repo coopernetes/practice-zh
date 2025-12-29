@@ -8,7 +8,11 @@ const layoutForHtmx = (request: fastify.FastifyRequest) => {
 export const routes = async (fastify: fastify.FastifyInstance) => {
   fastify.get("/", async (request, reply) => {
     const layout = layoutForHtmx(request);
-    return reply.view("index.ejs", { title: "Home" }, layout ? { layout } : {});
+    return reply.viewAsync(
+      "index.ejs",
+      { title: "Home" },
+      layout ? { layout } : {},
+    );
   });
 
   fastify.get("/new", async (request, reply) => {
@@ -19,7 +23,7 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
         userAgent: request.headers["user-agent"],
         time: new Date().toISOString(),
       },
-      layout ? { layout } : {}
+      layout ? { layout } : {},
     );
   });
 

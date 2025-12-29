@@ -109,6 +109,6 @@ export async function seed(knex: Knex): Promise<void> {
       hsk2_level: extractHskLevel(word.l, "o"),
       hsk3_level: extractHskLevel(word.l, "n"),
     })),
-    100
+    100,
   );
 }
