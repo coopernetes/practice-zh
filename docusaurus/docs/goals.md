@@ -26,5 +26,5 @@ This is a wish list of things I'd like to use in practice-zh.
 
 ### Non-goals
 
-- Compete with HelloChinese, Duolingo or other language learner providers. I'm quite happy with the native speaker content, the variety of learning delivery methods (fill in the blanks, )
+- Compete with HelloChinese, Duolingo or other language learner providers. I'm quite happy with the native speaker content, the variety of learning delivery methods (fill in the blanks, building of Chinese sentences to translate English & vice versa, multiple choice, etc.)
 - Add AI for the heck of it. I _do_ think this app wil greatly benefit from carefully planned LLM usage along with RAG. I am motivated to explore LLMs like OpenAI, Gemini or Qwen but only where it makes sense to add it. It would be easy to vibe code a crappy site that serves up generated content...But I've already had useful chats on those tools already and this app is a habit builder primarily, not a wrapper around a chat bot.

@@ -18,25 +18,26 @@
 
 <body>
   <header class="container-fluid">
-    <h1>Practice 中文</h1>
+
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h1>Practice 中文</h1>
+      <span id="theme-toggle-wrapper">
+        <%- include('partials/theme-button', { theme: 'dark' }) %>
+      </span>
+    </div>
+
     <nav>
       <ul>
-        <li><strong><a href="/" hx-get="/" hx-target="#content-area" hx-push-url="true">companion app</a></strong>
+        <li>
+          <a href="/new" role="button" hx-get="/new" hx-target="#content-area" hx-push-url="true">New test</a>
         </li>
+        <li><a href="/progress" role="button" hx-get="/progress" hx-target="#content-area"
+            hx-push-url="true">Progress</a></li>
       </ul>
       <ul>
-        <li>
-          <a href="/new" hx-get="/new" hx-target="#content-area" hx-push-url="true">New test</a>
+        <li><strong><a href="https://coopernetes.github.io/practice-zh" role="button">Docs</a></strong>
         </li>
-        <li><a href="/progress" hx-get="/progress" hx-target="#content-area" hx-push-url="true">Progress</a></li>
-      </ul>
-      <ul>
-        <li><a href="/settings">Settings</a></li>
-        <li>
-          <span id="theme-toggle-wrapper">
-            <%- include('partials/theme-button', { theme: 'dark' }) %>
-          </span>
-        </li>
+        <li><a href="/settings" role="button">Settings</a></li>
       </ul>
     </nav>
   </header>
@@ -46,7 +47,6 @@
   </main>
 
   <footer class="container-fluid">
-    <hr>
     <p>Built on <a href="https://www.fastify.dev/">Fastify</a>, <a href="https://htmx.org/">htmx</a> &amp; <a
         href="https://picocss.com/">pico</a>.</p>
   </footer>
