@@ -104,8 +104,8 @@ export async function seed(knex: Knex): Promise<void> {
   await knex.batchInsert(
     "words",
     rawData.map((word) => ({
-      simplified_chars: word.s,
-      traditional_chars: JSON.stringify(word.f.map((f) => f.t)),
+      simplified_zh: word.s,
+      traditional_zh: JSON.stringify(word.f.map((f) => f.t)),
       pinyin: JSON.stringify(word.f.map((f) => fixupUmlaut(f.i.y))),
       pinyin_numeric: JSON.stringify(word.f.map((f) => f.i.n)),
       meanings: JSON.stringify(word.f.map((f) => f.m)),

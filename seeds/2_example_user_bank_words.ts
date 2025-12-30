@@ -59,7 +59,7 @@ export async function seed(knex: Knex): Promise<void> {
     const wordIds = await knex
       .select("id")
       .from("words")
-      .whereIn("simplified_chars", entry.words);
+      .whereIn("simplified_zh", entry.words);
     wordIds.forEach((wordId) => {
       wordInserts.push({
         word_id: wordId.id,

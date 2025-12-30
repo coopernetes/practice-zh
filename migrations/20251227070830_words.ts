@@ -6,8 +6,8 @@ export async function up(knex: Knex): Promise<void> {
   }
   return knex.schema.createTable("words", (table) => {
     table.increments("id").primary();
-    table.string("simplified_chars").notNullable();
-    table.string("traditional_chars").notNullable();
+    table.string("simplified_zh").notNullable();
+    table.string("traditional_zh").notNullable();
     table.string("pinyin").notNullable();
     table.string("pinyin_numeric").notNullable();
     table.text("meanings").notNullable();

@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/public/css/pico.colors.min.css">
   <link rel="stylesheet" href="/public/css/pico.amber.min.css">
-  <link rel="stylesheet" href="/public/css/words.css">
+  <link rel="stylesheet" href="/public/css/styles.css">
   <script src="/public/js/htmx.min.js"></script>
   <title>Practice 中文</title>
   <script>
@@ -31,13 +31,18 @@
         <li>
           <a href="/new" role="button" hx-get="/new" hx-target="#content-area" hx-push-url="true">New test</a>
         </li>
+        <li>
+          <a href="/random" role="button" hx-get="/random" hx-target="#content-area" hx-push-url="true">Random</a>
+        </li>
         <li><a href="/progress" role="button" hx-get="/progress" hx-target="#content-area"
             hx-push-url="true">Progress</a></li>
       </ul>
       <ul>
-        <li><strong><a href="https://coopernetes.github.io/practice-zh" role="button">Docs</a></strong>
-        </li>
         <li><a href="/settings" role="button">Settings</a></li>
+        <li>
+          <a href="https://coopernetes.github.io/practice-zh" class="external" role="button" target="_blank"
+            style="padding-right: 1.3em">Docs</a>
+        </li>
       </ul>
     </nav>
   </header>

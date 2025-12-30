@@ -1,0 +1,18 @@
+a.external {
+  background-image: url("/public/icons/external-link.svg");
+  background-position: center right;
+  background-repeat: no-repeat;
+  background-size: 1em;
+}
+
+span.verb {
+  color: var(--pico-color-azure-500);
+}
+
+span.noun {
+  color: var(--pico-color-jade-500);
+}
+
+span.adjective {
+  color: var(--pico-color-amber-500);
+}

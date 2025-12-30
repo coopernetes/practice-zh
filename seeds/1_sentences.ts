@@ -15,10 +15,10 @@ export async function seed(knex: Knex): Promise<void> {
       const lineToSplit = line.charAt(0) === "\uFEFF" ? line.slice(1) : line;
       const parts = lineToSplit.split("\t");
       sentences.push({
-        chinese_sentence_id: parts[0], // These ids are from the original data source
-        chinese: parts[1],
-        english_sentence_id: parts[2], // These ids are from the original data source
-        english: parts[3],
+        zh_id: parts[0], // These ids are from the original data source
+        zh: parts[1],
+        en_id: parts[2], // These ids are from the original data source
+        en: parts[3],
       });
     }
   } catch (err) {

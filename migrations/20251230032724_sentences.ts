@@ -6,10 +6,10 @@ export async function up(knex: Knex): Promise<void> {
   }
   await knex.schema.createTable("sentences", (table) => {
     table.increments("id").primary();
-    table.text("chinese").notNullable();
-    table.integer("chinese_sentence_id").notNullable();
-    table.text("english").notNullable();
-    table.integer("english_sentence_id").notNullable();
+    table.text("zh").notNullable();
+    table.integer("zh_id").notNullable();
+    table.text("en").notNullable();
+    table.integer("en_id").notNullable();
   });
 }
 

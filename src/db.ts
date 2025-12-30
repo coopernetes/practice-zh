@@ -5,9 +5,9 @@ declare module "knex/types/tables.js" {
     id: number;
     hsk2_level?: number;
     hsk3_level?: number;
-    simplified_chars: string;
+    simplified_zh: string;
     // JSON array as string types
-    traditional_chars: string;
+    traditional_zh: string;
     pinyin: string;
     pinyin_numeric: string;
     part_of_speech: string; // JSON array of strings
