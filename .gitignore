@@ -2,6 +2,8 @@
 *.sqlite*
 misc/
 
+.env*
+
 # Logs
 logs
 *.log

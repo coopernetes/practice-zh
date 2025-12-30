@@ -7,9 +7,11 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable("sentences", (table) => {
     table.increments("id").primary();
     table.text("zh").notNullable();
-    table.integer("zh_id").notNullable();
     table.text("en").notNullable();
-    table.integer("en_id").notNullable();
+    table.integer("zh_id").nullable();
+    table.integer("en_id").nullable();
+    table.binary("zh_audio").nullable();
+    table.binary("en_audio").nullable();
   });
 }
 

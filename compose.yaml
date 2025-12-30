@@ -8,6 +8,15 @@ services:
       - "3000:3000"
     networks:
       - app-network
+  qwen-tts:
+    image: registry.hf.space/qwen-qwen3-tts-demo:latest
+    entrypoint: python
+    command: app.py
+    ports:
+      - "7680:7680"
+    networks:
+      - app-network
+    env_file: ".env-qwen"
   nginx:
     image: nginx:alpine
     ports:

@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 import { readFileSync } from "node:fs";
 
-const input = process.env.USER_BANK_JSON || "misc/user_bank.json";
+const input = process.env.SEED_USER_BANK_JSON || "misc/user_bank.json";
 
 interface BankEntry {
   name: string;
