@@ -5,7 +5,7 @@ const input = process.env.USER_BANK_JSON || "misc/user_bank.json";
 
 interface BankEntry {
   name: string;
-  characters: string[];
+  words: string[];
   tags: string[];
 }
 
@@ -27,6 +27,10 @@ interface BankWordTable {
 }
 
 export async function seed(knex: Knex): Promise<void> {
+  await knex("user_bank_words").del();
+  await knex("user_banks").del();
+  await knex("users").del();
+
   const userInsert = await knex
     .insert<{ id: number; user_name: string; email: string }>({
       user_name: "default_user",
@@ -55,7 +59,7 @@ export async function seed(knex: Knex): Promise<void> {
     const wordIds = await knex
       .select("id")
       .from("words")
-      .whereIn("simplified_chars", entry.characters);
+      .whereIn("simplified_chars", entry.words);
     wordIds.forEach((wordId) => {
       wordInserts.push({
         word_id: wordId.id,

@@ -26,6 +26,8 @@ interface MinWordEntry {
   l: string[];
   /** Part of speech descriptor */
   p: string[];
+  /** frequency  */
+  q: number;
   /** List of transcriptions of the word */
   f: EntryForm[];
 }
@@ -96,6 +98,8 @@ const partOfSpeech = (code: string) => {
 };
 
 export async function seed(knex: Knex): Promise<void> {
+  await knex("words").del();
+
   const rawData: MinWordEntry[] = JSON.parse(readFileSync(wordlist, "utf-8"));
   await knex.batchInsert(
     "words",
@@ -106,9 +110,10 @@ export async function seed(knex: Knex): Promise<void> {
       pinyin_numeric: JSON.stringify(word.f.map((f) => f.i.n)),
       meanings: JSON.stringify(word.f.map((f) => f.m)),
       part_of_speech: JSON.stringify(word.p.map((pos) => partOfSpeech(pos))),
+      frequency: word.q,
       hsk2_level: extractHskLevel(word.l, "o"),
       hsk3_level: extractHskLevel(word.l, "n"),
     })),
-    100,
+    100
   );
 }
