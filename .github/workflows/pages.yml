@@ -3,6 +3,8 @@ name: Deploy docs to Pages
 on:
   push:
     branches: ["main"]
+    paths:
+      - "docusaurus/**"
   workflow_dispatch:
 
 permissions:
