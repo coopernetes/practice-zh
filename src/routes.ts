@@ -40,6 +40,12 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
     });
   });
 
+  fastify.get("/random", async (_request, reply) => {
+    return reply.viewAsync("partials/random.ejs", {
+      number: Math.floor(Math.random() * 100),
+    });
+  });
+
   const RANDOM_PROGRESS_VALUE = Math.floor(Math.random() * 100);
 
   fastify.get("/progress", async (request, reply) => {
