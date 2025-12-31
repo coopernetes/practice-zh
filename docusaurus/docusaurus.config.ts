@@ -29,7 +29,7 @@ const config: Config = {
         docs: {
           routeBasePath: "/",
           sidebarPath: "./sidebars.ts",
-          editUrl: "https://github.com/coopernetes/practice-zh/tree/main/docs/",
+          showLastUpdateTime: true,
         },
         blog: {
           showReadingTime: true,
