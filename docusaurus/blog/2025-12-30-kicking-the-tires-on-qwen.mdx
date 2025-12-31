@@ -1,0 +1,97 @@
+---
+title: Kicking the tires on Alibaba's Qwen-TTS
+slug: /qwen-tts
+---
+
+你好！
+
+In the process of creating practice-zh, I've always been interested in trying out APIs or services that I normally wouldn't encounter in my day job. If you care to know, I run the [OSPO at RBC, a bank based in Toronto Canada](https://github.com/RBC). Working with developers every day, I don't really have the opportunity to build apps for "regular users".
+
+This is where my experimentation with [Alibaba's Qwen TTS model](https://qwen.ai/blog?id=b4264e11fb80b5e37350790121baf0a0f10daf82&from=research.latest-advancements-list) comes in.
+
+<!-- truncate -->
+
+Given that this site is intended to help me study Chinese, I thought it appropriate to check out what LLMs Chinese tech companies are offering these days. I am not a data scientist or AI developer by trade so this is also a good use case for me to familiarize myself with platforms like Huggingface and play around with thats available.
+
+A few prompts on Gemini discussing the practice-zh project later, it was recommended that I check out some of the purpose built models out of Alibaba. Given its home base in China and (what I presume are) better Chinese-based training data available to these companies compared to an OpenAI or Anthropic, it seems like a good choice for my app. Previous attempts to use generative AI via ChatGPT for my Mandarin studies have yielded...mixed results:
+
+![ChatGPT provides an "interesting" sentence about hitting buses...](/img/mistranslation.png)
+
+Gemini pointed me to Qwen. Google search pointed me to the [Qwen Huggingface org](https://huggingface.co/Qwen). And within Huggingface, it led me to this awesome demo of `qwen3-tts-flash`, their flagship text-to-speech model:
+
+<iframe
+  src="https://qwen-qwen3-tts-demo.hf.space"
+  frameborder="0"
+  width="850"
+  height="450"
+></iframe>
+
+From Alibaba's press release:
+
+> Qwen3-TTS-Flash is a flagship text-to-speech model that supports multi-timbre, multi-lingual, and multi-dialect speech synthesis. It aims to produce natural and expressive speech and is available via Qwen API.
+
+My next task was running it locally. Since I'm looking to add text-to-speech as an addon to the main features of the app, I wanted the ability to run this demo and consume it's API running on my laptop. This sets up the project nicely so that I can drop in this demo and consume it's API for generating speech audio from quiz sentences that my app will be using.
+
+So then, it was getting an API key with Alibaba Cloud to be able to hit the actual [Dashscope API](https://github.com/dashscope). Signing up for Alibaba Cloud was pretty simple. Email, credit card, some verification and done\*.
+
+_\*Turns out, I'm unable to use the Beijing region of Alibaba's cloud platform. No Chinese residency as I am a foreigner based in Canada. This will be important later._
+
+After getting my account up and running, I needed an API key. Seemed straight forward enough, head over to the Model Studio and generated a new API key. Ran the local python app from Huggingface, however...
+
+```shell
+(env) tom@duncan:~/huggingface/Qwen3-TTS-Demo$ python app.py
+Traceback (most recent call last):
+  File "/home/tom/huggingface/Qwen3-TTS-Demo/app.py", line 1, in <module>
+    import gradio as gr
+ModuleNotFoundError: No module named 'gradio'
+```
+
+OK, seems simple enough. I learn that [Gradio is a machine learning app framework](https://www.gradio.app/). Seems simple enough with a `pip install gradio`.
+
+```shell
+$ export API_KEY="..."
+$ python app.py
+/home/tom/huggingface/Qwen3-TTS-Demo/app.py:132: UserWarning: The parameters have been moved from the Blocks constructor to the launch() method in Gradio 6.0: theme, css. Please pass these parameters to launch() instead.
+  with gr.Blocks(theme=gr.themes.Soft(font=[gr.themes.GoogleFont("Source Sans Pro"), "Arial", "sans-serif"]), css=".gradio-container {max-width: none !important;}") as demo:
+* Running on local URL:  http://127.0.0.1:7860
+* To create a public link, set `share=True` in `launch()`.
+```
+
+OK, now I'm in business! Or so I thought...
+
+![Qwen's Huggingface app gives me an error](/img/qwen-tts-error.png)
+
+```
+text: 你好, Serena, Auto time: 2025-12-30 20:04:01.385242
+
+{"status_code": 401, "request_id": "8fefd215-9160-4ab3-9f68-095008fc857e", "code": "InvalidApiKey", "message": "Invalid API-key provided.", "output": null, "usage": null}
+```
+
+What the hell?! I just created this key! Obviously, this worked fine in Alibaba's hosted Huggingface space. The API key was correct and the only thing I could think of was some sort of default in dashscope. After some digging, I learnt about Alibaba's two regions for their Model Studio platform - dubbed _International Edition (Singapore)_ and _Mainland China Edition_. Their [Making your first Qwen API call docs](https://www.alibabacloud.com/help/en/model-studio/first-api-call-to-qwen?spm=a2c63.p38356.help-menu-2400256.d_0_0_1.152018122OM6W3&scm=20140722.H_2840915._.OR_help-T_intl~en-V_1) are highly instructive.
+
+The default region for dashscope APIs was mainland China. Here was the patch I applied:
+
+```diff
+diff --git a/app.py b/app.py
+index 4357807..dec6777 100644
+--- a/app.py
++++ b/app.py
+@@ -5,6 +5,8 @@ import numpy as np
+ import dashscope
+ import os
+
++dashscope.base_http_api_url = 'https://dashscope-intl.aliyuncs.com/api/v1'
++
+```
+
+![Qwen TTS app working successfully](/img/qwen-tts-success.png)
+
+SUCCESS!
+
+So what I had here was a local (simple) text-to-speech app with API to consume Alibaba's Qwen3-TTS-Flash model and provide life-like audio of native Chinese. Thanks to...
+
+[阿里云](https://modelstudio.console.alibabacloud.com)!
+
+<audio controls src={require("@site/static/aliyun.wav").default}></audio>
+
+This was a fun little experiment and got me oriented quick on using LLM's over APIs ans sets up the project nicely to easily incorporate it.
