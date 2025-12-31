@@ -1,23 +1,46 @@
 import knex from "knex";
 
-const s1 = "今天很冷";
-const expected1 = ["今天", "很", "冷"];
+const dbConfig = {
+  client: "better-sqlite3",
+  connection: {
+    filename: "./practice-zh.sqlite3",
+  },
+  useNullAsDefault: true,
+};
+
+// CJK Unified Ideographs: U+4E00 to U+9FFF
+function isCJK(char) {
+  const code = char.charCodeAt(0);
+  return code >= 0x4e00 && code <= 0x9fff;
+}
+
+// Check if sentence contains any ASCII letters/numbers
+function hasASCII(str) {
+  return /[A-Za-z0-9]/.test(str);
+}
+
 /**
  *
  * @param {string} sentence
- * @returns {Promise<string[]>}
+ * @returns {Promise<object[]>}
  */
 async function parseSentence(sentence) {
-  console.log(`Parsing: ${sentence}`);
+  // Skip sentences with ASCII characters
+  if (hasASCII(sentence)) {
+    console.log(`\nSkipping (has ASCII): ${sentence}`);
+    return [];
+  }
+
+  console.log(`\nParsing: ${sentence}`);
   const words = [];
   let remaining = sentence;
-  const punctuationRegex = /[。！？，、；：""''（）【】《》]/;
 
   while (remaining.length > 0) {
-    // Check if first character is punctuation
     const firstChar = remaining[0];
-    if (punctuationRegex.test(firstChar)) {
-      console.log(`Found punctuation: ${firstChar}`);
+
+    // Skip non-CJK characters (punctuation, symbols, etc.)
+    if (!isCJK(firstChar)) {
+      console.log(`Found non-CJK: ${firstChar}`);
       words.push({
         simplified_zh: firstChar,
         traditional_chars: firstChar,
@@ -39,30 +62,34 @@ async function parseSentence(sentence) {
         break;
       }
     }
+
     if (!found) {
-      console.log(`No match for: ${remaining.slice(0, 4)}`);
-      break;
+      // Unknown CJK character - treat as a single unknown word
+      const unknownChar = remaining[0];
+      console.log(`Unknown char: ${unknownChar}`);
+      words.push({
+        simplified_zh: unknownChar,
+        traditional_chars: unknownChar,
+        unknown: true,
+      });
+      remaining = remaining.slice(1);
     }
   }
-  console.log(`Result: ${JSON.stringify(words)}`);
+
   const reconstructed = words
     .map((w) => w.simplified_zh || w.traditional_chars)
     .join("");
+
   if (reconstructed === sentence) {
     return words;
   }
+
+  console.warn("Reconstruction mismatch, skipping sentence");
   return [];
 }
 
 async function getWord(simplified_zh) {
-  const db = knex({
-    client: "better-sqlite3",
-    connection: {
-      filename: "./practice-zh.sqlite3",
-    },
-    useNullAsDefault: true,
-  });
-
+  const db = knex(dbConfig);
   const word = await db("words").where({ simplified_zh }).first();
   await db.destroy();
   return word;
@@ -74,7 +101,6 @@ async function createPhraseComponent(sentence, words) {
   let position = 0;
 
   for (const word of words) {
-    // Handle punctuation
     if (word.punctuation) {
       template += word.simplified_zh || word.traditional_chars;
       continue;
@@ -90,18 +116,20 @@ async function createPhraseComponent(sentence, words) {
       }
     }
 
-    // Shorten "common noun" to "noun"
-    if (pos === "common noun") {
-      pos = "noun";
+    if (pos === "common noun") pos = "noun";
+
+    const component = {
+      word_id: word.unknown ? null : word.id,
+      slot_key: pos,
+      position,
+      is_optional: false,
+    };
+
+    if (word.unknown) {
+      component.literal_zh = word.simplified_zh;
     }
 
-    components.push({
-      word_id: word.id,
-      simplified_zh: word.simplified_zh,
-      slot_key: pos,
-      position: position,
-      is_optional: false,
-    });
+    components.push(component);
 
     template += `{${position}}`;
     position++;
@@ -114,21 +142,44 @@ async function createPhraseComponent(sentence, words) {
   };
 }
 
+/**
+ * Fetch 5 random sentences from DB
+ */
+async function getRandomSentences(limit = 5) {
+  const db = knex(dbConfig);
+  const rows = await db("sentences")
+    .select("zh")
+    .orderByRaw("RANDOM()")
+    .limit(limit);
+  await db.destroy();
+  return rows.map((r) => r.zh);
+}
+
 (async () => {
-  console.log("Starting test...");
-  const result1 = await parseSentence(s1);
-  if (
-    JSON.stringify(result1.map((w) => w.simplified_zh)) !==
-    JSON.stringify(expected1)
-  ) {
-    console.error(
-      `Test 1 failed: got ${JSON.stringify(result1.map((w) => w.simplified_zh))}, expected ${JSON.stringify(expected1)}`
-    );
-  } else {
-    console.log("Test 1 passed!");
+  // Manual test cases with proper nouns
+  const manualTests = [
+    "鲍勃也会开车。",
+    "杰夫找了三个月以后才找到了一份工作。",
+  ];
+
+  console.log("--- Manual Test Cases (proper nouns) ---");
+  for (const sentence of manualTests) {
+    const words = await parseSentence(sentence);
+    if (!words.length) continue;
+
+    const phraseComponent = await createPhraseComponent(sentence, words);
+    console.log(JSON.stringify(phraseComponent, null, 2));
   }
 
-  console.log("\n--- Phrase Components ---");
-  const pc1 = await createPhraseComponent(s1, result1);
-  console.log(JSON.stringify(pc1, null, 2));
+  console.log("\n--- Random Sentences ---");
+  console.log("Fetching random sentences...");
+  const sentences = await getRandomSentences(5);
+
+  for (const sentence of sentences) {
+    const words = await parseSentence(sentence);
+    if (!words.length) continue;
+
+    const phraseComponent = await createPhraseComponent(sentence, words);
+    console.log(JSON.stringify(phraseComponent, null, 2));
+  }
 })();

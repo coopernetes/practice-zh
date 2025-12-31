@@ -11,8 +11,9 @@ export async function up(knex: Knex): Promise<void> {
       .references("id")
       .inTable("phrases")
       .onDelete("CASCADE");
-    table.integer("word_id").references("id").inTable("words");
-
+    // Allow for sentences which contain words not in our dictionary such as names
+    table.integer("word_id").references("id").inTable("words").nullable();
+    table.string("literal_zh");
     table.string("slot_key"); // e.g., 'subj', 'verb_1', 'measure'
     table.integer("position").notNullable(); // Order of display
     table.boolean("is_optional").defaultTo(false); // For words like '很'
