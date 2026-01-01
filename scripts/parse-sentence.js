@@ -1,4 +1,5 @@
 import knex from "knex";
+import nodejieba from "nodejieba";
 
 const dbConfig = {
   client: "better-sqlite3",
@@ -62,60 +63,45 @@ async function parseSentence(sentence) {
 
   console.log(`\nParsing: ${sentence}`);
   const words = [];
-  let remaining = sentence;
+  const segments = nodejieba.cut(sentence);
 
-  while (remaining.length > 0) {
-    const firstChar = remaining[0];
-
+  for (const segment of segments) {
     // Handle Chinese punctuation
-    if (isChinesePunctuation(firstChar)) {
-      console.log(`Found punctuation: ${firstChar}`);
+    if (isChinesePunctuation(segment)) {
+      console.log(`Found punctuation: ${segment}`);
       words.push({
-        simplified_zh: firstChar,
-        traditional_chars: firstChar,
+        simplified_zh: segment,
+        traditional_chars: segment,
         punctuation: true,
       });
-      remaining = remaining.slice(1);
       continue;
     }
 
-    // Handle other non-CJK characters (unexpected in clean sentences)
-    if (!isCJK(firstChar)) {
-      console.log(
-        `Found unexpected non-CJK: ${firstChar} (U+${firstChar.charCodeAt(0).toString(16).toUpperCase()})`
-      );
+    // Handle non-CJK characters
+    const hasCJK = [...segment].some((char) => isCJK(char));
+    if (!hasCJK) {
+      console.log(`Found non-CJK segment: ${segment}`);
       words.push({
-        simplified_zh: firstChar,
-        traditional_chars: firstChar,
+        simplified_zh: segment,
+        traditional_chars: segment,
         unexpected: true,
       });
-      remaining = remaining.slice(1);
       continue;
     }
 
-    let found = false;
-    for (let len = 4; len >= 1; len--) {
-      const chunk = remaining.slice(0, len);
-      const word = await getWord(chunk);
-      if (word) {
-        console.log(`Found: ${chunk}`);
-        words.push(word);
-        remaining = remaining.slice(len);
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      // Unknown CJK character - treat as a single unknown word
-      const unknownChar = remaining[0];
-      console.log(`Unknown char: ${unknownChar}`);
+    // Try to find the word in our database
+    const word = await getWord(segment);
+    if (word) {
+      console.log(`Found: ${segment}`);
+      words.push(word);
+    } else {
+      // Unknown word
+      console.log(`Unknown word: ${segment}`);
       words.push({
-        simplified_zh: unknownChar,
-        traditional_chars: unknownChar,
+        simplified_zh: segment,
+        traditional_chars: segment,
         unknown: true,
       });
-      remaining = remaining.slice(1);
     }
   }
 
@@ -133,9 +119,20 @@ async function parseSentence(sentence) {
 
 async function getWord(simplified_zh) {
   const db = knex(dbConfig);
-  const word = await db("words").where({ simplified_zh }).first();
+
+  // Check words_hsk first
+  const hskWord = await db("words_hsk").where({ simplified_zh }).first();
+  if (hskWord) {
+    await db.destroy();
+    return hskWord;
+  }
+
+  // Then check words_hsk_missing
+  const missingWord = await db("words_hsk_missing")
+    .where({ simplified_zh })
+    .first();
   await db.destroy();
-  return word;
+  return missingWord;
 }
 
 async function createPhraseComponent(sentence, words) {
@@ -190,7 +187,7 @@ async function createPhraseComponent(sentence, words) {
  */
 async function getRandomSentences(limit = 5) {
   const db = knex(dbConfig);
-  const rows = await db("sentences")
+  const rows = await db("sentences_tatoeba")
     .select("zh")
     .orderByRaw("RANDOM()")
     .limit(limit);
