@@ -44,20 +44,41 @@ const convertNumericToPinyin = (pinyinNumeric: string): string => {
 
 export async function seed(knex: Knex): Promise<void> {
   // Delete existing entries
-  await knex("words_hsk_missing").del();
+  await knex("words_additional").del();
 
-  const jsonPath = join(__dirname, "../misc/words_hsk_missing.json");
+  const jsonPath = join(__dirname, "../misc/words_additional.json");
+  const customJsonPath = join(
+    __dirname,
+    "../misc/words_additional_custom.json"
+  );
+  const unknownChunksPath = join(
+    __dirname,
+    "../misc/unknown_chunks_cedict_enriched.json"
+  );
 
-  console.log("Reading words_hsk_missing.json...");
-  if (!fs.existsSync(jsonPath)) {
-    console.error(`\nError: ${jsonPath} not found!`);
-    console.error(
-      "Run 'node scripts/missing-hsk-cedict.js' first to generate this file.\n"
-    );
-    throw new Error("Missing words_hsk_missing.json");
+  console.log(
+    "Reading words_additional.json, words_additional_custom.json, and unknown_chunks_cedict_enriched.json..."
+  );
+
+  const words: WordEntry[] = [];
+
+  if (fs.existsSync(jsonPath)) {
+    words.push(...JSON.parse(fs.readFileSync(jsonPath, "utf-8")));
   }
 
-  const words: WordEntry[] = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+  if (fs.existsSync(customJsonPath)) {
+    words.push(...JSON.parse(fs.readFileSync(customJsonPath, "utf-8")));
+  }
+
+  if (fs.existsSync(unknownChunksPath)) {
+    words.push(...JSON.parse(fs.readFileSync(unknownChunksPath, "utf-8")));
+  }
+
+  if (words.length === 0) {
+    console.error("\nError: No word files found!");
+    throw new Error("Missing word files");
+  }
+
   console.log(`Loaded ${words.length} words from JSON`);
 
   const entriesToInsert = words.map((word) => ({
@@ -66,7 +87,7 @@ export async function seed(knex: Knex): Promise<void> {
     pinyin: convertNumericToPinyin(word.pinyin_numeric),
     pinyin_numeric: word.pinyin_numeric,
     english: JSON.stringify(word.english),
-    hsk_approx: word.hsk_approx,
+    hsk_approx: word.hsk_approx || "unknown",
     source: word.source,
   }));
 
@@ -76,10 +97,8 @@ export async function seed(knex: Knex): Promise<void> {
   const batchSize = 100;
   for (let i = 0; i < entriesToInsert.length; i += batchSize) {
     const batch = entriesToInsert.slice(i, i + batchSize);
-    await knex("words_hsk_missing").insert(batch);
+    await knex("words_additional").insert(batch);
   }
 
-  console.log(
-    `\nSeeded ${entriesToInsert.length} words into words_hsk_missing`
-  );
+  console.log(`\nSeeded ${entriesToInsert.length} words into words_additional`);
 }

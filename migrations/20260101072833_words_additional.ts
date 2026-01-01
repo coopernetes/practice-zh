@@ -1,10 +1,10 @@
 import type { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
-  if (await knex.schema.hasTable("words_hsk_missing")) {
+  if (await knex.schema.hasTable("words_additional")) {
     return;
   }
-  await knex.schema.createTable("words_hsk_missing", (table) => {
+  await knex.schema.createTable("words_additional", (table) => {
     table.increments("id").primary();
     table.string("simplified_zh").notNullable();
     table.string("traditional_zh").notNullable();
@@ -17,11 +17,11 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   await knex.schema.raw(
-    `CREATE INDEX IF NOT EXISTS words_hsk_missing_zh_index ON words_hsk_missing (simplified_zh);`
+    `CREATE INDEX IF NOT EXISTS words_additional_zh_index ON words_additional (simplified_zh);`
   );
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.raw(`DROP INDEX IF EXISTS words_hsk_missing_zh_index;`);
+  await knex.schema.raw(`DROP INDEX IF EXISTS words_additional_zh_index;`);
   return knex.schema.dropTableIfExists("words_hsk_missing");
 }

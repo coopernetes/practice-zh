@@ -3,25 +3,31 @@
  * Parse missing HSK words from CSV and enrich with CC-CEDICT data.
  *
  * Reads:
- *   - misc/hacking-chinese_missing-hsk-words.csv
+ *   - misc/custom_words.json (or CUSTOM_WORDS_JSON env var)
  *   - misc/cedict_1_0_ts_utf-8_mdbg.txt
  *
  * Outputs:
- *   - misc/words_hsk_missing.json (enriched words ready for seeding)
- *   - misc/words_hsk_missing.notfound.json (words not found in CC-CEDICT)
+ *   - misc/words_additional_custom.json (enriched words ready for seeding)
+ *   - misc/words_additional_custom.notfound.json (words not found in CC-CEDICT)
  *
  * Usage:
- *   node scripts/missing-hsk-cedict.js
+ *   node scripts/words-additional-custom-cedict.js
+ *   CUSTOM_WORDS_JSON=misc/unknown_chunks_cedict.json node scripts/words-additional-custom-cedict.js
  */
 
 import fs from "node:fs";
+import path from "node:path";
 import readline from "node:readline";
 
-// Hardcoded paths
+// Paths - CUSTOM_WORDS_JSON can be overridden via env var
 const CEDICT_PATH = "./misc/cedict_1_0_ts_utf-8_mdbg.txt";
-const MISSING_CSV_PATH = "./misc/hacking-chinese_missing-hsk-words.csv";
-const OUTPUT_PATH = "./misc/words_hsk_missing.json";
-const NOT_FOUND_PATH = "./misc/words_hsk_missing.notfound.json";
+const CUSTOM_WORDS_JSON =
+  process.env.CUSTOM_WORDS_JSON || "./misc/custom_words.json";
+
+// Derive output paths from input file name
+const inputBasename = path.basename(CUSTOM_WORDS_JSON, ".json");
+const OUTPUT_PATH = `./misc/${inputBasename}_enriched.json`;
+const NOT_FOUND_PATH = `./misc/${inputBasename}_notfound.json`;
 
 /**
  * Parse a line from CC-CEDICT
@@ -64,51 +70,41 @@ async function loadCedict(cedictPath) {
   return map;
 }
 
-/**
- * Parse CSV and return words with their HSK approximation
- * CSV format: HSK1-3,HSK4,HSK5,HSK6 (header)
- *             word1,word2,word3,word4
- */
-function parseWordsCsv(csvPath) {
-  const content = fs.readFileSync(csvPath, "utf-8");
-  const lines = content.trim().split("\n");
-
-  const wordMap = new Map();
-
-  // Skip header, parse data
-  const dataLines = lines.slice(1);
-  const headers = ["1-3", "4", "5", "6"];
-
-  for (const line of dataLines) {
-    const columns = line.split(",");
-    columns.forEach((word, idx) => {
-      if (word.trim()) {
-        wordMap.set(word.trim(), headers[idx]);
-      }
-    });
-  }
-
-  return wordMap;
-}
-
 async function main() {
-  console.log("Loading CC-CEDICT...");
+  console.log(`Input: ${CUSTOM_WORDS_JSON}`);
+  console.log(`Output: ${OUTPUT_PATH}`);
+
+  console.log("\nLoading CC-CEDICT...");
   const cedictMap = await loadCedict(CEDICT_PATH);
   console.log(`Loaded ${cedictMap.size} entries from CC-CEDICT`);
 
-  console.log("\nParsing missing words CSV...");
-  const missingWords = parseWordsCsv(MISSING_CSV_PATH);
-  console.log(`Found ${missingWords.size} missing words`);
+  console.log("\nParsing words JSON...");
+  const customWords = JSON.parse(fs.readFileSync(CUSTOM_WORDS_JSON, "utf-8"));
+  console.log(`Found ${customWords.length} words`);
 
   const entries = [];
   const notFoundInCedict = [];
 
-  // Process missing words
-  console.log("\nProcessing missing words...");
-  for (const [word, hskApprox] of missingWords) {
-    const cedict = cedictMap.get(word);
+  // Process words
+  console.log("\nProcessing words...");
+  for (const wordObj of customWords) {
+    // Already has CEDICT data (from unknown-chunks-to-custom-words.js)
+    if (wordObj.definitions && wordObj.pinyin_numeric) {
+      entries.push({
+        simplified_zh: wordObj.simplified_zh,
+        traditional_zh: wordObj.traditional_zh,
+        pinyin_numeric: wordObj.pinyin_numeric,
+        english: wordObj.definitions,
+        hsk_approx: wordObj.hsk_approx || null,
+        source: "custom",
+      });
+      continue;
+    }
+
+    // Need to look up in CEDICT
+    const cedict = cedictMap.get(wordObj.simplified_zh);
     if (!cedict) {
-      notFoundInCedict.push({ word, hskApprox });
+      notFoundInCedict.push(wordObj);
       continue;
     }
 
@@ -117,9 +113,8 @@ async function main() {
       traditional_zh: cedict.traditional,
       pinyin_numeric: cedict.pinyin,
       english: cedict.definitions,
-      hsk_approx: hskApprox,
-      source:
-        "https://www.hackingchinese.com/what-important-words-are-missing-from-hsk/",
+      hsk_approx: wordObj.hsk_approx || null,
+      source: "custom",
     });
   }
 

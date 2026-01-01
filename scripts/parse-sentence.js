@@ -95,6 +95,53 @@ async function parseSentence(sentence) {
       console.log(`Found: ${segment}`);
       words.push(word);
     } else {
+      // Try character-by-character fallback for multi-character segments
+      if (segment.length > 1) {
+        console.log(
+          `Segment not found: ${segment}, trying character-by-character`
+        );
+        let allFound = true;
+        const charWords = [];
+
+        for (const char of segment) {
+          const charWord = await getWord(char);
+          if (charWord) {
+            charWords.push(charWord);
+          } else {
+            allFound = false;
+            break;
+          }
+        }
+
+        if (allFound) {
+          console.log(`Parsed as individual characters: ${segment}`);
+          words.push(...charWords);
+          continue;
+        }
+      }
+
+      // Try quantity + measure word pattern (e.g., 十分钟 = 十 + 分钟)
+      if (segment.length >= 2) {
+        let foundQuantity = false;
+        // Try splitting first char(s) as number + rest as measure word
+        for (let i = 1; i < segment.length; i++) {
+          const numPart = segment.slice(0, i);
+          const measurePart = segment.slice(i);
+
+          const numWord = await getWord(numPart);
+          const measureWord = await getWord(measurePart);
+
+          if (numWord && measureWord) {
+            console.log(`Parsed as quantity: ${numPart} + ${measurePart}`);
+            words.push(numWord, measureWord);
+            foundQuantity = true;
+            break;
+          }
+        }
+
+        if (foundQuantity) continue;
+      }
+
       // Unknown word
       console.log(`Unknown word: ${segment}`);
       words.push({
@@ -127,8 +174,8 @@ async function getWord(simplified_zh) {
     return hskWord;
   }
 
-  // Then check words_hsk_missing
-  const missingWord = await db("words_hsk_missing")
+  // Then check words_additional
+  const missingWord = await db("words_additional")
     .where({ simplified_zh })
     .first();
   await db.destroy();
@@ -200,6 +247,9 @@ async function getRandomSentences(limit = 5) {
   const manualTests = [
     "鲍勃也会开车。",
     "杰夫找了三个月以后才找到了一份工作。",
+    "他不会打倒我的。",
+    "我会参加下次的会议。",
+    "我十分钟后有空。",
   ];
 
   console.log("--- Manual Test Cases (proper nouns) ---");
