@@ -8,6 +8,7 @@ export async function up(knex: Knex): Promise<void> {
     table.increments("id").primary();
     table.string("simplified_zh").notNullable();
     table.string("traditional_zh").notNullable();
+    table.string("pinyin").notNullable();
     table.string("pinyin_numeric").notNullable();
     table.text("english").notNullable(); // JSON array of definitions
     table.string("hsk_approx").notNullable(); // e.g., "1-3", "4", "5", "6"
