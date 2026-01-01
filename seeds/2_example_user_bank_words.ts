@@ -16,13 +16,8 @@ interface BankTable {
   tags: string;
 }
 
-interface WordRow {
-  id: number;
-  simplified: string;
-}
-
 interface BankWordTable {
-  word_id: number;
+  word_hsk_id: number;
   bank_id: number;
 }
 
@@ -58,11 +53,11 @@ export async function seed(knex: Knex): Promise<void> {
       .into("user_banks");
     const wordIds = await knex
       .select("id")
-      .from("words")
+      .from("words_hsk")
       .whereIn("simplified_zh", entry.words);
     wordIds.forEach((wordId) => {
       wordInserts.push({
-        word_id: wordId.id,
+        word_hsk_id: wordId.id,
         bank_id: bankInsert[0].id,
       });
     });

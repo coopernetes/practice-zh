@@ -28,11 +28,10 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable("user_bank_words", (table) => {
     table.increments("id").primary();
     table
-      .integer("word_id")
+      .integer("word_hsk_id")
       .unsigned()
-      .notNullable()
       .references("id")
-      .inTable("words")
+      .inTable("words_hsk")
       .onDelete("CASCADE");
     table
       .integer("bank_id")

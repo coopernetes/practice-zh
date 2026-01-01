@@ -1,13 +1,14 @@
 import type { Knex } from "knex";
 import { open } from "node:fs/promises";
 
-const sentenceTsv = process.env.SEED_SENTENCES_TSV || "misc/sentences.tsv";
+const sentenceTsv =
+  process.env.SEED_SENTENCES_TSV || "misc/sentences_tatoeba.simplified.tsv";
 const deleteExistsing = process.env.SEED_SENTENCES_DELETE_EXISTING;
 
 export async function seed(knex: Knex): Promise<void> {
   if (deleteExistsing) {
     // Clear out existing entries if the environment variable is set
-    await knex("sentences").del();
+    await knex("sentences_tatoeba").del();
   }
 
   const sentences = [];
@@ -22,8 +23,6 @@ export async function seed(knex: Knex): Promise<void> {
         zh: parts[1],
         en_id: parts[2], // These ids are from the original data source
         en: parts[3],
-        zh_audio: parts.length > 4 ? Buffer.from(parts[4], "base64") : null,
-        en_audio: parts.length > 5 ? Buffer.from(parts[5], "base64") : null,
       });
     }
   } catch (err) {
@@ -35,5 +34,5 @@ export async function seed(knex: Knex): Promise<void> {
   }
 
   // Inserts seed entries
-  await knex.batchInsert("sentences", sentences, 100);
+  await knex.batchInsert("sentences_tatoeba", sentences, 100);
 }

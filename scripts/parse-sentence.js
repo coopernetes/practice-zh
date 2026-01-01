@@ -14,6 +14,35 @@ function isCJK(char) {
   return code >= 0x4e00 && code <= 0x9fff;
 }
 
+// Chinese punctuation marks
+const CHINESE_PUNCTUATION = new Set([
+  "。",
+  "，",
+  "、",
+  "；",
+  "：",
+  "？",
+  "！",
+  '"',
+  '"',
+  "'",
+  "'",
+  "（",
+  "）",
+  "【",
+  "】",
+  "《",
+  "》",
+  "—",
+  "…",
+  "·",
+  "～",
+]);
+
+function isChinesePunctuation(char) {
+  return CHINESE_PUNCTUATION.has(char);
+}
+
 // Check if sentence contains any ASCII letters/numbers
 function hasASCII(str) {
   return /[A-Za-z0-9]/.test(str);
@@ -38,13 +67,27 @@ async function parseSentence(sentence) {
   while (remaining.length > 0) {
     const firstChar = remaining[0];
 
-    // Skip non-CJK characters (punctuation, symbols, etc.)
-    if (!isCJK(firstChar)) {
-      console.log(`Found non-CJK: ${firstChar}`);
+    // Handle Chinese punctuation
+    if (isChinesePunctuation(firstChar)) {
+      console.log(`Found punctuation: ${firstChar}`);
       words.push({
         simplified_zh: firstChar,
         traditional_chars: firstChar,
         punctuation: true,
+      });
+      remaining = remaining.slice(1);
+      continue;
+    }
+
+    // Handle other non-CJK characters (unexpected in clean sentences)
+    if (!isCJK(firstChar)) {
+      console.log(
+        `Found unexpected non-CJK: ${firstChar} (U+${firstChar.charCodeAt(0).toString(16).toUpperCase()})`
+      );
+      words.push({
+        simplified_zh: firstChar,
+        traditional_chars: firstChar,
+        unexpected: true,
       });
       remaining = remaining.slice(1);
       continue;

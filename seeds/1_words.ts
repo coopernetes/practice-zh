@@ -98,11 +98,11 @@ const partOfSpeech = (code: string) => {
 };
 
 export async function seed(knex: Knex): Promise<void> {
-  await knex("words").del();
+  await knex("words_hsk").del();
 
   const rawData: MinWordEntry[] = JSON.parse(readFileSync(wordlist, "utf-8"));
   await knex.batchInsert(
-    "words",
+    "words_hsk",
     rawData.map((word) => ({
       simplified_zh: word.s,
       traditional_zh: JSON.stringify(word.f.map((f) => f.t)),
