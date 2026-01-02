@@ -5,6 +5,9 @@ import { fastifyView } from "@fastify/view";
 import routes from "./routes.js";
 import { join } from "node:path";
 import { pino } from "pino";
+import { knexPlugin, setKnex } from "./db.js";
+import knex from "knex";
+import knexConfig from "../knexfile.js";
 
 const __dirname = import.meta.dirname;
 
@@ -37,11 +40,21 @@ export const setupFastify = async (): Promise<FastifyInstance> => {
     },
     root: join(__dirname, "..", "views"),
   });
+  fastify.register(knexPlugin);
   fastify.register(routes);
   return fastify;
 };
 
 export const start = async () => {
+  const env =
+    process.env.NODE_ENV === "production" ? "production" : "development";
+
+  const cfg = knexConfig[env];
+  if (!cfg) {
+    throw new Error(`No knex config for environment: ${env}`);
+  }
+  setKnex(knex(cfg));
+
   const fastify = await setupFastify();
   const port = process.env?.PORT ? parseInt(process.env.PORT, 10) : 3000;
   const host = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";

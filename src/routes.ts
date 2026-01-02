@@ -1,4 +1,6 @@
 import fastify from "fastify";
+import { getRandomSentence } from "./quiz.js";
+import { getKnex } from "./db.js";
 
 const layoutForHtmx = (request: fastify.FastifyRequest) => {
   const isHtmx = !!request.headers["hx-request"];
@@ -6,6 +8,9 @@ const layoutForHtmx = (request: fastify.FastifyRequest) => {
 };
 
 export const routes = async (fastify: fastify.FastifyInstance) => {
+  /**
+   * UI Routes
+   */
   fastify.get("/", async (request, reply) => {
     const layout = layoutForHtmx(request);
     return reply.viewAsync(
@@ -66,6 +71,19 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
     return reply.view("partials/theme-button.ejs", {
       theme: nextTheme,
     });
+  });
+
+  /**
+   * API Routes
+   */
+  fastify.get("/api/quiz/sentence", async (_request, reply) => {
+    const sentence = await getRandomSentence(getKnex());
+    if (!sentence) {
+      return reply.status(500).send({
+        error: "Server failed to get random sentence",
+      });
+    }
+    return reply.send(sentence);
   });
 };
 

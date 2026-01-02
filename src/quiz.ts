@@ -1,18 +1,29 @@
-import { getKnex } from "./db.js";
+import type { Knex } from "knex";
+import type { SentenceTatoeba } from "knex/types/tables.js";
 
-export const getPhrase = async (phraseId: number) => {
-  const knex = getKnex();
-  const phrase = await knex("phrases").where({ id: phraseId }).first();
-  if (!phrase) {
-    throw new Error(`Phrase with ID ${phraseId} not found.`);
+interface QuizSentence {
+  id: number;
+  zh: string;
+  en: string;
+  has_audio: boolean;
+  audio_id?: number;
+}
+
+export const getRandomSentence = async (
+  knex: Knex
+): Promise<QuizSentence | undefined> => {
+  const sentence = await knex<SentenceTatoeba>("sentences_tatoeba")
+    .select("*")
+    .orderByRaw(knex.raw("random()"))
+    .limit(1);
+  if (sentence.length !== 1 || !sentence[0]) {
+    console.error(`ERROR: Bad db call: ${JSON.stringify(sentence)}`);
+    return undefined;
   }
-
-  const components = await knex("phrase_components")
-    .where({ phrase_id: phraseId })
-    .orderBy("position", "asc");
-
   return {
-    ...phrase,
-    components,
+    id: sentence[0].id,
+    zh: sentence[0].zh,
+    en: sentence[0].en,
+    has_audio: false,
   };
 };

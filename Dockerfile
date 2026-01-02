@@ -5,8 +5,10 @@ WORKDIR /src
 COPY package.json package-lock.json tsconfig.json knexfile.ts ./
 COPY src/ ./src/
 
-RUN npm ci \
-  && npm run build
+RUN apk add --no-cache --virtual .gyp python3 make g++ \
+  && npm ci \
+  && npm run build \
+  && apk del .gyp
 
 FROM node:24-alpine
 

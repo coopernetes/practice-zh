@@ -1,4 +1,11 @@
-import { Knex } from "knex";
+import type { Knex } from "knex";
+import type { FastifyPluginAsync } from "fastify";
+
+declare module "fastify" {
+  interface FastifyInstance {
+    knex: Knex;
+  }
+}
 
 declare module "knex/types/tables.js" {
   interface Word {
@@ -6,13 +13,56 @@ declare module "knex/types/tables.js" {
     hsk2_level?: number;
     hsk3_level?: number;
     simplified_zh: string;
-    // JSON array as string types
     traditional_zh: string;
     pinyin: string;
     pinyin_numeric: string;
     part_of_speech: string; // JSON array of strings
-    // a 2 dimensional JSON array of strings. if traditional has more than one entry, meanings[i] corresponds to traditional_chars[i]
-    meanings: string;
+    meanings: string; // JSON array
+    frequency: number;
+  }
+
+  interface WordAdditional {
+    id: number;
+    simplified_zh: string;
+    traditional_zh: string;
+    pinyin: string;
+    pinyin_numeric: string;
+    english: string; // JSON array of definitions
+    hsk_approx: string; // e.g., "1-3", "4", "5", "6"
+    source: string; // "missing" or "delayed"
+    created_at: Date;
+  }
+
+  interface SentenceTatoeba {
+    id: number;
+    zh: string;
+    en: string;
+    zh_id?: number;
+    en_id?: number;
+  }
+
+  interface SentenceTatoebaAudio {
+    id: number;
+    sentence_id: number;
+    audio_blob: Buffer;
+    source: string;
+    created_at: Date;
+  }
+
+  interface SentenceCustom {
+    id: number;
+    zh: string;
+    en: string;
+    zh_id?: number;
+    en_id?: number;
+  }
+
+  interface SentenceCustomAudio {
+    id: number;
+    sentence_id: number;
+    audio_blob: Buffer;
+    source: string;
+    created_at: Date;
   }
 
   interface Phrase {
@@ -51,8 +101,33 @@ declare module "knex/types/tables.js" {
   }
 
   interface Tables {
-    words: Word;
-    words_composite: Knex.CompositeTableType<Word, Omit<Word, "id">>;
+    words_hsk: Word;
+    words_hsk_composite: Knex.CompositeTableType<Word, Omit<Word, "id">>;
+    words_additional: WordAdditional;
+    words_additional_composite: Knex.CompositeTableType<
+      WordAdditional,
+      Omit<WordAdditional, "id" | "created_at">
+    >;
+    sentences_tatoeba: SentenceTatoeba;
+    sentences_tatoeba_composite: Knex.CompositeTableType<
+      SentenceTatoeba,
+      Omit<SentenceTatoeba, "id">
+    >;
+    sentences_tatoeba_audio: SentenceTatoebaAudio;
+    sentences_tatoeba_audio_composite: Knex.CompositeTableType<
+      SentenceTatoebaAudio,
+      Omit<SentenceTatoebaAudio, "id" | "created_at">
+    >;
+    sentences_custom: SentenceCustom;
+    sentences_custom_composite: Knex.CompositeTableType<
+      SentenceCustom,
+      Omit<SentenceCustom, "id">
+    >;
+    sentences_custom_audio: SentenceCustomAudio;
+    sentences_custom_audio_composite: Knex.CompositeTableType<
+      SentenceCustomAudio,
+      Omit<SentenceCustomAudio, "id" | "created_at">
+    >;
     phrases: Phrase;
     phrases_composite: Knex.CompositeTableType<Phrase, Omit<Phrase, "id">>;
     phrase_components: PhraseComponent;
@@ -84,4 +159,13 @@ export const getKnex = (): Knex => {
 
 export const setKnex = (knex: Knex): void => {
   knexInstance = knex;
+};
+
+export const knexPlugin: FastifyPluginAsync<{}> = async (instance, {}) => {
+  const knex = getKnex();
+  instance.decorate("knex", knex);
+
+  instance.addHook("onClose", (instance, done) => {
+    instance.knex.destroy(done);
+  });
 };
