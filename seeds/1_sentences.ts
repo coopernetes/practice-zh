@@ -1,38 +1,56 @@
 import type { Knex } from "knex";
 import { open } from "node:fs/promises";
 
-const sentenceTsv =
-  process.env.SEED_SENTENCES_TSV || "misc/sentences_tatoeba.simplified.tsv";
-const deleteExistsing = process.env.SEED_SENTENCES_DELETE_EXISTING;
+const sentencesTatoeabaTsv =
+  process.env.SEED_SENTENCES_TATOEBA_TSV ||
+  "misc/sentences_tatoeba.simplified.tsv";
+const sentencesCustomTsv =
+  process.env.SEED_SENTENCES_CUSTOM_TSV || "misc/sentences_custom.tsv";
 
-export async function seed(knex: Knex): Promise<void> {
-  if (deleteExistsing) {
-    // Clear out existing entries if the environment variable is set
-    await knex("sentences_tatoeba").del();
-  }
+const deleteExisting = process.env.SEED_SENTENCES_DELETE_EXISTING;
 
+async function parseSentencesTsv(tsvPath: string) {
   const sentences = [];
   let fileHandle;
   try {
-    fileHandle = await open(sentenceTsv, "r");
+    fileHandle = await open(tsvPath, "r");
     for await (const line of fileHandle.readLines({ encoding: "utf-8" })) {
       const lineToSplit = line.charAt(0) === "\uFEFF" ? line.slice(1) : line;
       const parts = lineToSplit.split("\t");
       sentences.push({
-        zh_id: parts[0], // These ids are from the original data source
+        zh_id: parts[0],
         zh: parts[1],
-        en_id: parts[2], // These ids are from the original data source
+        en_id: parts[2],
         en: parts[3],
       });
     }
   } catch (err) {
-    console.error(err);
+    // File may not exist, that's ok
+    if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
+      console.error(err);
+    }
   } finally {
     if (fileHandle) {
       await fileHandle.close();
     }
   }
+  return sentences;
+}
 
-  // Inserts seed entries
-  await knex.batchInsert("sentences_tatoeba", sentences, 100);
+export async function seed(knex: Knex): Promise<void> {
+  // Always delete existing to prevent duplicates
+  await knex("sentences_tatoeba").del();
+  await knex("sentences_custom").del();
+
+  const tatoeba = await parseSentencesTsv(sentencesTatoeabaTsv);
+  if (tatoeba.length) {
+    console.log(`Inserting ${tatoeba.length} tatoeba sentences...`);
+    await knex.batchInsert("sentences_tatoeba", tatoeba, 100);
+  }
+
+  const custom = await parseSentencesTsv(sentencesCustomTsv);
+  if (custom.length) {
+    console.log(`Inserting ${custom.length} custom sentences...`);
+    await knex.batchInsert("sentences_custom", custom, 100);
+  }
 }

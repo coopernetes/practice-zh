@@ -6,7 +6,7 @@ export async function up(knex: Knex): Promise<void> {
   }
   await knex.schema.createTable("words_additional", (table) => {
     table.increments("id").primary();
-    table.string("simplified_zh").notNullable();
+    table.string("simplified_zh").notNullable().unique();
     table.string("traditional_zh").notNullable();
     table.string("pinyin").notNullable();
     table.string("pinyin_numeric").notNullable();

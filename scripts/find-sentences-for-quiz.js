@@ -1,6 +1,12 @@
 import knex from "knex";
 import fs from "fs";
 import nodejieba from "nodejieba";
+import {
+  isCJK,
+  isChinesePunctuation,
+  hasASCII,
+  splitTokenIntoKnownAndUnknown,
+} from "./lib/chinese.js";
 
 const dbConfig = {
   client: "better-sqlite3",
@@ -11,45 +17,6 @@ const dbConfig = {
 };
 
 const db = knex(dbConfig);
-
-// CJK Unified Ideographs: U+4E00 to U+9FFF
-function isCJK(char) {
-  const code = char.charCodeAt(0);
-  return code >= 0x4e00 && code <= 0x9fff;
-}
-
-// Chinese punctuation marks
-const CHINESE_PUNCTUATION = new Set([
-  "。",
-  "，",
-  "、",
-  "；",
-  "：",
-  "？",
-  "！",
-  '"',
-  '"',
-  "'",
-  "'",
-  "（",
-  "）",
-  "【",
-  "】",
-  "《",
-  "》",
-  "—",
-  "…",
-  "·",
-  "～",
-]);
-
-function isChinesePunctuation(char) {
-  return CHINESE_PUNCTUATION.has(char);
-}
-
-function hasASCII(str) {
-  return /[A-Za-z0-9]/.test(str);
-}
 
 /**
  * Build a set of all words the user knows from all their banks
@@ -79,7 +46,7 @@ async function getUserWordBank(userId) {
     return new Set();
   }
 
-  // Get the actual simplified_zh values for these word_ids
+  // Get the actual simplified_zh values for these word_ids from words_hsk
   const hskWords = await db("words_hsk")
     .whereIn("id", wordIds)
     .select("simplified_zh");
@@ -90,7 +57,7 @@ async function getUserWordBank(userId) {
 }
 
 /**
- * Check if a segment can be covered by the user's word bank
+ * Check if a segment can be covered by the user's word bank using DP algorithm
  * Returns: { known: boolean, breakdown: string[] }
  */
 function canCoverSegment(segment, userWordBank) {
@@ -99,30 +66,18 @@ function canCoverSegment(segment, userWordBank) {
     return { known: true, breakdown: [segment] };
   }
 
-  // Try to break down into known components (longest match first)
-  let remaining = segment;
-  const breakdown = [];
+  // Use DP algorithm to find optimal splitting
+  const result = splitTokenIntoKnownAndUnknown(segment, userWordBank);
 
-  while (remaining.length > 0) {
-    let found = false;
+  // Check if there are any unknown parts
+  const hasUnknown = result.some((part) => part.type === "unknown");
 
-    // Try longest matches first (up to 4 chars)
-    for (let len = Math.min(4, remaining.length); len >= 1; len--) {
-      const candidate = remaining.slice(0, len);
-      if (userWordBank.has(candidate)) {
-        breakdown.push(candidate);
-        remaining = remaining.slice(len);
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      // Cannot cover this part
-      return { known: false, breakdown: null };
-    }
+  if (hasUnknown) {
+    return { known: false, breakdown: null };
   }
 
+  // All parts are known
+  const breakdown = result.map((part) => part.text);
   return { known: true, breakdown };
 }
 
@@ -213,7 +168,7 @@ async function main() {
   // If no limit provided, find all matching sentences
   const limit = process.argv[2] ? parseInt(process.argv[2], 10) : null;
 
-  const quizSentences = await findQuizSentences(userId, 0.8, 0.95, limit);
+  const quizSentences = await findQuizSentences(userId, 0.8, 1.0, limit);
 
   console.log(`\nFound ${quizSentences.length} quiz-ready sentences:\n`);
 

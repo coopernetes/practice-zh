@@ -1,4 +1,12 @@
 import knex from "knex";
+import nodejieba from "nodejieba";
+import {
+  isCJK,
+  isChinesePunctuation,
+  hasASCII,
+  splitTokenIntoKnownAndUnknown,
+} from "./lib/chinese.js";
+import { loadHskWords, loadWordsFromJsonFiles } from "./lib/hsk.js";
 
 const dbConfig = {
   client: "better-sqlite3",
@@ -10,48 +18,28 @@ const dbConfig = {
 
 const db = knex(dbConfig);
 
-// CJK Unified Ideographs: U+4E00 to U+9FFF
-function isCJK(char) {
-  const code = char.charCodeAt(0);
-  return code >= 0x4e00 && code <= 0x9fff;
-}
-
-// Check if sentence contains any ASCII letters/numbers
-function hasASCII(str) {
-  return /[A-Za-z0-9]/.test(str);
-}
-
-async function getWord(simplified_zh) {
-  return db("words").where({ simplified_zh }).first();
-}
-
-// Find unknown CJK characters in a sentence
-async function findUnknownInSentence(zh) {
+// Find unknown CJK characters in a sentence using the same logic as the pipeline
+function findUnknownInSentence(zh, known) {
   const unknowns = new Set();
-  let remaining = zh;
+  const segments = nodejieba.cut(zh);
 
-  while (remaining.length > 0) {
-    const firstChar = remaining[0];
+  for (const segment of segments) {
+    if (isChinesePunctuation(segment)) continue;
 
-    if (!isCJK(firstChar)) {
-      remaining = remaining.slice(1);
-      continue;
-    }
+    const containsCJK = [...segment].some(isCJK);
+    if (!containsCJK) continue;
 
-    let found = false;
-    for (let len = 4; len >= 1; len--) {
-      const chunk = remaining.slice(0, len);
-      const word = await getWord(chunk);
-      if (word) {
-        remaining = remaining.slice(len);
-        found = true;
-        break;
-      }
-    }
+    if (known.has(segment)) continue;
 
-    if (!found) {
-      unknowns.add(remaining[0]);
-      remaining = remaining.slice(1);
+    // Use DP algorithm to split token optimally
+    const pieces = splitTokenIntoKnownAndUnknown(segment, known, 6);
+    const hasUnknown = pieces.some((p) => !p.known);
+    if (!hasUnknown) continue;
+
+    for (const piece of pieces) {
+      if (piece.known) continue;
+      if ([...piece.text].every(isChinesePunctuation)) continue;
+      unknowns.add(piece.text);
     }
   }
 
@@ -59,21 +47,38 @@ async function findUnknownInSentence(zh) {
 }
 
 async function main() {
-  const sentences = await db("sentences").select("id", "zh", "en");
+  // Load all known words using the same logic as the pipeline
+  console.error("Loading vocabulary...");
+  const hskWords = loadHskWords();
+  const additionalWords = loadWordsFromJsonFiles([
+    "./misc/words_additional.json",
+    "./misc/words_additional_custom.json",
+    "./misc/unknown_chunks_cedict_enriched.json",
+    "./misc/words_additional_custom_from_unknown_nouns.json",
+  ]);
+
+  const known = new Set([...hskWords, ...additionalWords]);
+  console.error(`Loaded ${known.size.toLocaleString()} known words`);
+
+  const sentences = await db("sentences_tatoeba").select("id", "zh", "en");
+  console.error(`Processing ${sentences.length.toLocaleString()} sentences...`);
 
   // Output header
   console.log("id\tzh\ten\tunknown_chars");
 
+  let count = 0;
   for (const { id, zh, en } of sentences) {
     // Skip sentences with ASCII
     if (hasASCII(zh)) continue;
 
-    const unknowns = await findUnknownInSentence(zh);
+    const unknowns = findUnknownInSentence(zh, known);
     if (unknowns.length > 0) {
       console.log(`${id}\t${zh}\t${en}\t${unknowns.join("")}`);
+      count++;
     }
   }
 
+  console.error(`\nFound ${count} sentences with unknown words`);
   await db.destroy();
 }
 

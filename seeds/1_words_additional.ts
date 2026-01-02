@@ -43,35 +43,24 @@ const convertNumericToPinyin = (pinyinNumeric: string): string => {
 };
 
 export async function seed(knex: Knex): Promise<void> {
-  // Delete existing entries
-  await knex("words_additional").del();
+  const jsonFiles = [
+    "../misc/words_additional.json",
+    "../misc/words_additional_custom.json",
+    "../misc/unknown_chunks_cedict_enriched.json",
+    "../misc/words_additional_custom_from_unknown_nouns.json",
+  ];
 
-  const jsonPath = join(__dirname, "../misc/words_additional.json");
-  const customJsonPath = join(
-    __dirname,
-    "../misc/words_additional_custom.json"
-  );
-  const unknownChunksPath = join(
-    __dirname,
-    "../misc/unknown_chunks_cedict_enriched.json"
-  );
-
-  console.log(
-    "Reading words_additional.json, words_additional_custom.json, and unknown_chunks_cedict_enriched.json..."
-  );
+  console.log("Reading word files:", jsonFiles.join(", "));
 
   const words: WordEntry[] = [];
 
-  if (fs.existsSync(jsonPath)) {
-    words.push(...JSON.parse(fs.readFileSync(jsonPath, "utf-8")));
-  }
-
-  if (fs.existsSync(customJsonPath)) {
-    words.push(...JSON.parse(fs.readFileSync(customJsonPath, "utf-8")));
-  }
-
-  if (fs.existsSync(unknownChunksPath)) {
-    words.push(...JSON.parse(fs.readFileSync(unknownChunksPath, "utf-8")));
+  for (const file of jsonFiles) {
+    const filePath = join(__dirname, file);
+    if (fs.existsSync(filePath)) {
+      const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+      console.log(`  ${file}: ${data.length} words`);
+      words.push(...data);
+    }
   }
 
   if (words.length === 0) {
@@ -91,13 +80,30 @@ export async function seed(knex: Knex): Promise<void> {
     source: word.source,
   }));
 
-  console.log(`Inserting ${entriesToInsert.length} words...`);
+  console.log(`Upserting ${entriesToInsert.length} words...`);
 
-  // Insert in batches
-  const batchSize = 100;
-  for (let i = 0; i < entriesToInsert.length; i += batchSize) {
-    const batch = entriesToInsert.slice(i, i + batchSize);
-    await knex("words_additional").insert(batch);
+  // Upsert using raw SQL to preserve IDs
+  for (const entry of entriesToInsert) {
+    await knex.raw(
+      `INSERT INTO words_additional (simplified_zh, traditional_zh, pinyin, pinyin_numeric, english, hsk_approx, source)
+       VALUES (?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(simplified_zh) DO UPDATE SET
+         traditional_zh = excluded.traditional_zh,
+         pinyin = excluded.pinyin,
+         pinyin_numeric = excluded.pinyin_numeric,
+         english = excluded.english,
+         hsk_approx = excluded.hsk_approx,
+         source = excluded.source`,
+      [
+        entry.simplified_zh,
+        entry.traditional_zh,
+        entry.pinyin,
+        entry.pinyin_numeric,
+        entry.english,
+        entry.hsk_approx,
+        entry.source,
+      ]
+    );
   }
 
   console.log(`\nSeeded ${entriesToInsert.length} words into words_additional`);
