@@ -5,19 +5,19 @@ slug: /qwen-tts
 
 你好！
 
-In the process of creating practice-zh, I've always been interested in trying out APIs or services that I normally wouldn't encounter in my day job. If you care to know, I run the [OSPO at RBC, a bank based in Toronto Canada](https://github.com/RBC). Working with developers every day, I don't really have the opportunity to build apps for "regular users".
+In the process of creating practice-zh, I've always been interested in trying out APIs or services that I normally wouldn't encounter in my day job. If you care to know, I run the [OSPO at RBC, a financial institution based in Toronto Canada](https://github.com/RBC). Working with developers every day, I don't really have the opportunity to build apps for "regular users".
 
 This is where my experimentation with [Alibaba's Qwen TTS model](https://qwen.ai/blog?id=b4264e11fb80b5e37350790121baf0a0f10daf82&from=research.latest-advancements-list) comes in.
 
 <!-- truncate -->
 
-Given that this site is intended to help me study Chinese, I thought it appropriate to check out what LLMs Chinese tech companies are offering these days. I am not a data scientist or AI developer by trade so this is also a good use case for me to familiarize myself with platforms like Huggingface and play around with thats available.
+Given that this site is intended to help me study Chinese, I thought it appropriate to check out what LLMs Chinese tech companies are offering these days. I am not a data scientist or AI developer by trade so this is also a good use case for me to familiarize myself with platforms like Huggingface and play around with what's available.
 
-A few prompts on Gemini discussing the practice-zh project later, it was recommended that I check out some of the purpose built models out of Alibaba. Given its home base in China and (what I presume are) better Chinese-based training data available to these companies compared to an OpenAI or Anthropic, it seems like a good choice for my app. Previous attempts to use generative AI via ChatGPT for my Mandarin studies have yielded...mixed results:
+A few prompts later on Gemini discussing the practice-zh project, it was recommended that I check out some of the purpose built models out of Alibaba. Given Alibana is based in China, I have a presumption that there is better Chinese training data available to these companies compared to an OpenAI or Anthropic. At the very least, Alibaba is culturally aligned with the region & language so I don't think it's a stretch to presume these models are just better for this use case. Previous attempts to use generative AI via ChatGPT for my own Mandarin studies have yielded...mixed results:
 
-![ChatGPT provides an "interesting" sentence about hitting buses...](/img/mistranslation.png)
+![ChatGPT provides an "interesting" sentence about eating buses...](/img/mistranslation.png)
 
-Gemini pointed me to Qwen. Google search pointed me to the [Qwen Huggingface org](https://huggingface.co/Qwen). And within Huggingface, it led me to this awesome demo of `qwen3-tts-flash`, their flagship text-to-speech model:
+Gemini pointed me to Qwen. Google search pointed me to the [Qwen Huggingface org](https://huggingface.co/Qwen). And within Huggingface, it led me to this awesome demo of `qwen3-tts-flash`, their flagship text-to-speech model. I've embedded it below so you can play around with it.
 
 <iframe
   src="https://qwen-qwen3-tts-demo.hf.space"
