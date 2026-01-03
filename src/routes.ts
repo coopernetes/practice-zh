@@ -33,40 +33,57 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
     );
   });
 
-  fastify.get("/sentence", async (request, reply) => {
-    const layout = layoutForHtmx(request);
-    let sentence;
-    if (request.query && (request.query as { id?: number }).id) {
-      const id = (request.query as { id?: number }).id!;
-      sentence = await getSentenceById(getKnex(), id);
-    } else {
-      sentence = await getRandomSentence(getKnex());
-    }
-    if (!sentence) {
-      return reply.view("partials/error.ejs", {
-        message: "Server failed to get random sentence",
-      });
-    }
+  // Helper: fetch sentence and prepare view data
+  async function getSentenceViewData(id?: number) {
+    const sentence = id
+      ? await getSentenceById(getKnex(), id)
+      : await getRandomSentence(getKnex());
+
+    if (!sentence) return null;
+
     const pinyin = sentence.components
       .filter((c) => !c.punctuation && c.pinyin)
       .map((c) => c.pinyin)
       .join(" ");
-    return reply.view(
-      "partials/sentence.ejs",
-      {
-        zh_sentence: sentence.zh,
-        en_sentence: sentence.en,
-        pinyin,
-        has_audio: sentence.has_audio,
-        audio_id: sentence.audio_id,
-      },
-      layout ? { layout } : {},
-    );
+
+    return {
+      zh_sentence: sentence.zh,
+      en_sentence: sentence.en,
+      pinyin,
+      has_audio: sentence.has_audio,
+      audio_id: sentence.audio_id,
+    };
+  }
+
+  fastify.get("/sentence", async (request, reply) => {
+    const id = (request.query as { id?: number }).id;
+    const data = await getSentenceViewData(id);
+
+    if (!data) {
+      return reply.view("partials/error.ejs", {
+        message: "Server failed to get sentence",
+      });
+    }
+
+    return reply.view("partials/sentence.ejs", data);
   });
 
   fastify.get("/random", async (request, reply) => {
     const layout = layoutForHtmx(request);
-    return reply.view("random.ejs", {}, layout ? { layout } : {});
+    const id = (request.query as { id?: number }).id;
+    const data = await getSentenceViewData(id);
+
+    if (!data) {
+      return reply.view(
+        "partials/error.ejs",
+        {
+          message: "Server failed to get sentence",
+        },
+        layout ? { layout } : {},
+      );
+    }
+
+    return reply.view("partials/sentence.ejs", data, layout ? { layout } : {});
   });
 
   const RANDOM_PROGRESS_VALUE = Math.floor(Math.random() * 100);

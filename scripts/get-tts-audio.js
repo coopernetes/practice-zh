@@ -55,7 +55,7 @@ const convertWavToOgg = (wavPath, oggPath) => {
   if (!existsSync(wavPath)) {
     throw new Error(`WAV file does not exist: ${wavPath}`);
   }
-  execFileSync("ffmpeg", ["-i", wavPath, "-c:a", "libvorbis", oggPath]);
+  execFileSync("ffmpeg", ["-i", wavPath, "-c:a", "libvorbis", "-y", oggPath]);
 };
 (async () => {
   try {
