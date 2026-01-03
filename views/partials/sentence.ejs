@@ -1,0 +1,34 @@
+<div class="grid">
+  <div>
+    <p class="sentence">
+      <span class="sentence" data-tooltip="click to reveal pinyin">
+        <%= zh_sentence %>
+      </span>
+    </p>
+  </div>
+  <div>
+    <details>
+      <summary>Pinyin</summary>
+      <p>
+        <%= pinyin %>
+      </p>
+    </details>
+    <details>
+      <summary>English translation</summary>
+      <p>
+        <%= en_sentence %>
+      </p>
+    </details>
+  </div>
+</div>
+<div class="grid quiz-buttons">
+  <div>
+    <button hx-post="/answer">I know this.</button>
+  </div>
+  <div>
+    <button hx-post="/answer">I forgot this.</button>
+  </div>
+  <div>
+    <button hx-post="/answer">I don't know this.</button>
+  </div>
+</div>

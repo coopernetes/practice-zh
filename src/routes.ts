@@ -1,5 +1,5 @@
 import fastify from "fastify";
-import { getRandomSentence } from "./quiz.js";
+import { getWordComponent, getRandomSentence } from "./quiz.js";
 import { getKnex } from "./db.js";
 
 const layoutForHtmx = (request: fastify.FastifyRequest) => {
@@ -13,54 +13,58 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
    */
   fastify.get("/", async (request, reply) => {
     const layout = layoutForHtmx(request);
-    return reply.viewAsync(
-      "index.ejs",
-      { title: "Home" },
-      layout ? { layout } : {}
-    );
+    return reply.view("index.ejs", { title: "Home" }, layout ? { layout } : {});
   });
 
-  fastify.get("/new", async (request, reply) => {
+  fastify.get("/quiz", async (request, reply) => {
     const layout = layoutForHtmx(request);
-    return reply.viewAsync(
-      "partials/new.ejs",
+    return reply.view(
+      "quiz.ejs",
       {
         userAgent: request.headers["user-agent"],
         time: new Date().toISOString(),
       },
-      layout ? { layout } : {}
+      layout ? { layout } : {},
     );
   });
 
-  fastify.get("/phrase", async (_request, reply) => {
-    return reply.viewAsync("partials/phrase.ejs", {
-      subject: "我",
-      subjectPinyin: "wǒ",
-      verb1: "喜欢",
-      verb1Pinyin: "xǐ huān",
-      verb2: "喝",
-      verb2Pinyin: "hē",
-      object: "茶",
-      objectPinyin: "chá",
-    });
+  fastify.get("/sentence", async (request, reply) => {
+    const layout = layoutForHtmx(request);
+    const sentence = await getRandomSentence(getKnex());
+    if (!sentence) {
+      return reply.view("partials/error.ejs", {
+        message: "Server failed to get random sentence",
+      });
+    }
+    const pinyin = sentence.components
+      .filter((c) => !c.punctuation && c.pinyin)
+      .map((c) => c.pinyin)
+      .join(" ");
+    return reply.view(
+      "partials/sentence.ejs",
+      {
+        zh_sentence: sentence.zh,
+        en_sentence: sentence.en,
+        pinyin,
+      },
+      layout ? { layout } : {},
+    );
   });
 
   fastify.get("/random", async (_request, reply) => {
-    return reply.viewAsync("partials/random.ejs", {
-      number: Math.floor(Math.random() * 100),
-    });
+    return reply.redirect("/sentence");
   });
 
   const RANDOM_PROGRESS_VALUE = Math.floor(Math.random() * 100);
 
   fastify.get("/progress", async (request, reply) => {
     const layout = layoutForHtmx(request);
-    return reply.viewAsync(
-      "partials/progress.ejs",
+    return reply.view(
+      "progress.ejs",
       {
         progressValue: RANDOM_PROGRESS_VALUE,
       },
-      layout ? { layout } : {}
+      layout ? { layout } : {},
     );
   });
 
@@ -71,19 +75,6 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
     return reply.view("partials/theme-button.ejs", {
       theme: nextTheme,
     });
-  });
-
-  /**
-   * API Routes
-   */
-  fastify.get("/api/quiz/sentence", async (_request, reply) => {
-    const sentence = await getRandomSentence(getKnex());
-    if (!sentence) {
-      return reply.status(500).send({
-        error: "Server failed to get random sentence",
-      });
-    }
-    return reply.send(sentence);
   });
 };
 

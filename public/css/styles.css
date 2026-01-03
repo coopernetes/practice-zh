@@ -1,5 +1,5 @@
 a.external {
-  background-image: url("/public/icons/external-link.svg");
+  background-image: url("/public/svg/external-link.svg");
   background-position: center right;
   background-repeat: no-repeat;
   background-size: 1em;
@@ -15,4 +15,16 @@ span.noun {
 
 span.adjective {
   color: var(--pico-color-amber-500);
+}
+
+p.sentence {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  border-bottom: none;
+}
+
+.quiz-buttons > div {
+  display: grid;
+  justify-content: center;
 }

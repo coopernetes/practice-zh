@@ -15,6 +15,7 @@
       document.documentElement.setAttribute('data-theme', 'light');
     }
   </script>
+  <link rel="preload" href="/public/svg/external-link.svg" as="image">
 </head>
 
 <body>
@@ -30,7 +31,7 @@
     <nav>
       <ul>
         <li>
-          <a href="/new" role="button" hx-get="/new" hx-target="#content-area" hx-push-url="true">New test</a>
+          <a href="/quiz" role="button" hx-get="/quiz" hx-target="#content-area" hx-push-url="true">New quiz</a>
         </li>
         <li>
           <a href="/random" role="button" hx-get="/random" hx-target="#content-area" hx-push-url="true">Random</a>
@@ -52,7 +53,8 @@
     <%- body %>
   </main>
 
-  <footer class="container-fluid">
+  <footer class="container-fluid" id="footer-area">
+    <hr />
     <p>Built on <a href="https://www.fastify.dev/">Fastify</a>, <a href="https://htmx.org/">htmx</a> &amp; <a
         href="https://picocss.com/">pico</a>.</p>
   </footer>
