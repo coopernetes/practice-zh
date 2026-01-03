@@ -17,7 +17,7 @@ const API_URL =
 const sentenceId = process.argv[2] || "test_sentence";
 const sentence = process.argv[3] || "请给我一杯咖啡。";
 const sentenceSource = process.argv[4] || "tatoeba";
-const voice = "Chelsie / 千雪";
+const voice = process.env.TTS_VOICE || "Serena / 苏瑶";
 const language = "Chinese / 中文";
 const dataInput = [sentence, voice, language];
 

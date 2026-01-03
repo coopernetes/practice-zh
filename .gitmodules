@@ -7,3 +7,9 @@
 [submodule "vendor/htmx"]
 	path = vendor/htmx
 	url = https://github.com/bigskysoftware/htmx.git
+[submodule "vendor/ChengyuBench"]
+	path = vendor/ChengyuBench
+	url = https://github.com/sofyc/ChengyuBench.git
+[submodule "vendor/chinese-poetry"]
+	path = vendor/chinese-poetry
+	url = https://github.com/chinese-poetry/chinese-poetry.git
