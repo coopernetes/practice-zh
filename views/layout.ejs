@@ -1,63 +1,95 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/public/favicon.ico" />
+    <link rel="stylesheet" href="/public/css/pico.colors.min.css" />
+    <link rel="stylesheet" href="/public/css/pico.amber.min.css" />
+    <link rel="stylesheet" href="/public/css/styles.css" />
+    <script src="/public/js/htmx.min.js"></script>
+    <script src="/public/js/main.js"></script>
+    <title>Practice 中文</title>
+    <script>
+      if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    </script>
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="/public/favicon.ico">
-  <link rel="stylesheet" href="/public/css/pico.colors.min.css">
-  <link rel="stylesheet" href="/public/css/pico.amber.min.css">
-  <link rel="stylesheet" href="/public/css/styles.css">
-  <script src="/public/js/htmx.min.js"></script>
-  <title>Practice 中文</title>
-  <script>
-    if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-      document.documentElement.setAttribute('data-theme', 'light');
-    }
-  </script>
-  <link rel="preload" href="/public/svg/external-link.svg" as="image">
-</head>
+  <body>
+    <header class="container-fluid">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <h1><a href="/">Practice 中文</a></h1>
+        <span id="theme-toggle-wrapper">
+          <%- include('partials/theme-button', { theme: 'dark' }) %>
+        </span>
+      </div>
 
-<body>
-  <header class="container-fluid">
+      <nav>
+        <ul>
+          <li>
+            <a
+              href="/quiz"
+              role="button"
+              hx-get="/quiz"
+              hx-target="#content-area"
+              hx-push-url="true"
+              >New quiz</a
+            >
+          </li>
+          <li>
+            <a
+              href="/random"
+              role="button"
+              hx-get="/random"
+              hx-target="#content-area"
+              hx-push-url="true"
+              >Random</a
+            >
+          </li>
+          <li>
+            <a
+              href="/progress"
+              role="button"
+              hx-get="/progress"
+              hx-target="#content-area"
+              hx-push-url="true"
+              >Progress</a
+            >
+          </li>
+        </ul>
+        <ul>
+          <li><a href="/settings" role="button">Settings</a></li>
+          <li>
+            <a
+              href="https://coopernetes.github.io/practice-zh"
+              role="button"
+              target="_blank"
+              class="external"
+              style="padding-right: 1.3rem"
+              >Docs</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </header>
 
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h1><a href="/">Practice 中文</a></h1>
-      <span id="theme-toggle-wrapper">
-        <%- include('partials/theme-button', { theme: 'dark' }) %>
-      </span>
-    </div>
+    <main class="container-fluid" id="content-area"><%- body %></main>
 
-    <nav>
-      <ul>
-        <li>
-          <a href="/quiz" role="button" hx-get="/quiz" hx-target="#content-area" hx-push-url="true">New quiz</a>
-        </li>
-        <li>
-          <a href="/random" role="button" hx-get="/random" hx-target="#content-area" hx-push-url="true">Random</a>
-        </li>
-        <li><a href="/progress" role="button" hx-get="/progress" hx-target="#content-area"
-            hx-push-url="true">Progress</a></li>
-      </ul>
-      <ul>
-        <li><a href="/settings" role="button">Settings</a></li>
-        <li>
-          <a href="https://coopernetes.github.io/practice-zh" class="external" role="button" target="_blank"
-            style="padding-right: 1.3em">Docs</a>
-        </li>
-      </ul>
-    </nav>
-  </header>
-
-  <main class="container-fluid" id="content-area">
-    <%- body %>
-  </main>
-
-  <footer class="container-fluid" id="footer-area">
-    <hr />
-    <p>Built on <a href="https://www.fastify.dev/">Fastify</a>, <a href="https://htmx.org/">htmx</a> &amp; <a
-        href="https://picocss.com/">pico</a>.</p>
-  </footer>
-</body>
-
+    <footer class="container-fluid" id="footer-area">
+      <hr />
+      <p>
+        Built on <a href="https://www.fastify.dev/">Fastify</a>,
+        <a href="https://htmx.org/">htmx</a> &amp;
+        <a href="https://picocss.com/">pico</a>.
+      </p>
+    </footer>
+  </body>
 </html>

@@ -1,35 +1,42 @@
-<div class="grid">
+<div class="grid" style="align-items: center; justify-items: center">
   <div>
-    <p class="sentence">
-      <span class="sentence" data-tooltip="click to reveal pinyin">
-        <%= zh_sentence %>
-      </span>
-    </p>
+    <p id="zh_sentence" class="sentence"><%= zh_sentence %></p>
+    <div class="copy-container">
+      <span class="copy-feedback">Copied!</span>
+      <button
+        class="secondary"
+        data-copy="<%= zh_sentence %>"
+        hx-on:click="copyText(this)"
+        aria-label="Copy to clipboard"
+      >
+        <img
+          src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='8' height='4' x='8' y='2' rx='1' ry='1'/><path d='M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2'/><path d='M16 4h2a2 2 0 0 1 2 2v4'/><path d='M21 14H11'/><path d='m15 10-4 4 4 4'/></svg>"
+          alt="Copy"
+        />
+      </button>
+    </div>
   </div>
-  <div>
+  <div style="justify-items: start">
     <details>
       <summary>Pinyin</summary>
-      <p>
-        <%= pinyin %>
-      </p>
+      <p><%= pinyin %></p>
     </details>
     <details>
       <summary>English translation</summary>
-      <p>
-        <%= en_sentence %>
-      </p>
+      <p><%= en_sentence %></p>
     </details>
     <% if (has_audio) { %>
-      <details>
-        <summary>Reveal audio</summary>
-        <audio controls>
-          <source src="/audio/<%= audio_id %>" type="audio/ogg">
-          Your browser does not support the audio element.
-        </audio>
-      </details>
-      <% } %>
+    <details>
+      <summary>Reveal audio</summary>
+      <audio controls>
+        <source src="/audio/<%= audio_id %>" type="audio/ogg" />
+        Your browser does not support the audio element.
+      </audio>
+    </details>
+    <% } %>
   </div>
 </div>
+<!-- <hr />
 <div class="grid quiz-buttons">
   <div>
     <button hx-post="/answer">I know this.</button>
@@ -40,4 +47,4 @@
   <div>
     <button hx-post="/answer">I don't know this.</button>
   </div>
-</div>
+</div> -->

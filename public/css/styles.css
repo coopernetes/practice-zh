@@ -1,8 +1,8 @@
 a.external {
-  background-image: url("/public/svg/external-link.svg");
+  background-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M15 3h6v6%22/><path d=%22M10 14 21 3%22/><path d=%22M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6%22/></svg>");
   background-position: center right;
   background-repeat: no-repeat;
-  background-size: 1em;
+  background-size: 1rem;
 }
 
 span.verb {
@@ -22,9 +22,47 @@ p.sentence {
   margin-bottom: 1.5rem;
   font-size: 2rem;
   border-bottom: none;
+  display: inline;
 }
 
 .quiz-buttons > div {
   display: grid;
   justify-content: center;
+}
+
+.copy-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.copy-feedback {
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* Use Pico's variables for consistent colors */
+  background: var(--pico-card-background-color);
+  border: var(--pico-border-width) solid var(--pico-muted-border-color);
+  color: var(--pico-color);
+
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--pico-border-radius);
+  font-size: 0.8rem;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.copy-feedback.show {
+  opacity: 1;
+}
+
+/* Make Pico's button play nice with the icon */
+.copy-container button {
+  margin-bottom: 0; /* Pico adds bottom margin to buttons by default */
+  padding: 0.5rem;
 }
