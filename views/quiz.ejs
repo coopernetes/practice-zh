@@ -1,5 +1,21 @@
 <section>
   <article>
-    <button hx-get="/sentence" hx-target="this" hx-swap="outerHTML">Click here for a phrase...</button>
+    <button hx-get="/sentence" hx-target="this" hx-swap="outerHTML">
+      Click here for a phrase...
+    </button>
   </article>
+  <div class="grid quiz-buttons">
+    <div>
+      <button hx-post="/answer">I know it.</button>
+    </div>
+    <div>
+      <button hx-post="/answer">I know some of it.</button>
+    </div>
+    <div>
+      <button hx-post="/answer">I forgot it.</button>
+    </div>
+    <div>
+      <button hx-post="/answer">I don't know it.</button>
+    </div>
+  </div>
 </section>

@@ -19,19 +19,17 @@
 
   <body>
     <header class="container-fluid">
-      <div
-        style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        "
-      >
-        <h1><a href="/">Practice 中文</a></h1>
-        <span id="theme-toggle-wrapper">
-          <%- include('partials/theme-button', { theme: 'dark' }) %>
-        </span>
+      <div class="grid">
+        <div style="align-content: start; justify-self: start">
+          <h1><a href="/" style="text-decoration: none">Practice 中文</a></h1>
+          <p><i>学中文（普通话）</i></p>
+        </div>
+        <div style="align-content: start; justify-self: end">
+          <span id="theme-toggle-wrapper">
+            <%- include('partials/theme-button', { theme: 'dark' }) %>
+          </span>
+        </div>
       </div>
-
       <nav>
         <ul>
           <li>
@@ -85,11 +83,21 @@
 
     <footer class="container-fluid" id="footer-area">
       <hr />
-      <p>
-        Built on <a href="https://www.fastify.dev/">Fastify</a>,
-        <a href="https://htmx.org/">htmx</a> &amp;
-        <a href="https://picocss.com/">pico</a>.
-      </p>
+      <div class="grid">
+        <div>
+          <a href="https://github.com/coopernetes/practice-zh" target="_blank"
+            >GitHub</a
+          >
+        </div>
+        <div style="justify-self: end">
+          <p>
+            Built on
+            <a href="https://www.fastify.dev/" target="_blank">Fastify</a>,
+            <a href="https://htmx.org/" target="_blank">htmx</a> &amp;
+            <a href="https://picocss.com/" target="_blank">pico</a>.
+          </p>
+        </div>
+      </div>
     </footer>
   </body>
 </html>

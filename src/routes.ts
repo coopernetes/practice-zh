@@ -29,7 +29,7 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
         userAgent: request.headers["user-agent"],
         time: new Date().toISOString(),
       },
-      layout ? { layout } : {}
+      layout ? { layout } : {},
     );
   });
 
@@ -60,12 +60,13 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
         has_audio: sentence.has_audio,
         audio_id: sentence.audio_id,
       },
-      layout ? { layout } : {}
+      layout ? { layout } : {},
     );
   });
 
-  fastify.get("/random", async (_request, reply) => {
-    return reply.redirect("/sentence");
+  fastify.get("/random", async (request, reply) => {
+    const layout = layoutForHtmx(request);
+    return reply.view("random.ejs", {}, layout ? { layout } : {});
   });
 
   const RANDOM_PROGRESS_VALUE = Math.floor(Math.random() * 100);
@@ -77,7 +78,7 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
       {
         progressValue: RANDOM_PROGRESS_VALUE,
       },
-      layout ? { layout } : {}
+      layout ? { layout } : {},
     );
   });
 
