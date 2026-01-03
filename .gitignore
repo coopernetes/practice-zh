@@ -1,6 +1,7 @@
 # sqlite
 *.sqlite*
 misc/
+data/
 
 .env*
 
