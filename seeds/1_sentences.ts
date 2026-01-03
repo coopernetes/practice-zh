@@ -7,8 +7,6 @@ const sentencesTatoeabaTsv =
 const sentencesCustomTsv =
   process.env.SEED_SENTENCES_CUSTOM_TSV || "misc/sentences_custom.tsv";
 
-const deleteExisting = process.env.SEED_SENTENCES_DELETE_EXISTING;
-
 async function parseSentencesTsv(tsvPath: string) {
   const sentences = [];
   let fileHandle;

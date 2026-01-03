@@ -20,3 +20,5 @@
 18. Add light & dark modes. Partially done.
 19. Add support for traditional Chinese characters.
 20. Convert WAV audio files from Qwen-TTS to more efficient format that is suitable for web. webM or Ogg?
+21. Add user authentication to allow users to save their progress.
+22. Allow phrases to be favourite'd.

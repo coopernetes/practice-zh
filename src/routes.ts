@@ -1,5 +1,10 @@
 import fastify from "fastify";
-import { getWordComponent, getRandomSentence } from "./quiz.js";
+import {
+  getWordComponent,
+  getRandomSentence,
+  getSentenceById,
+  getSentenceTatoebaAudio,
+} from "./quiz.js";
 import { getKnex } from "./db.js";
 
 const layoutForHtmx = (request: fastify.FastifyRequest) => {
@@ -24,13 +29,19 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
         userAgent: request.headers["user-agent"],
         time: new Date().toISOString(),
       },
-      layout ? { layout } : {},
+      layout ? { layout } : {}
     );
   });
 
   fastify.get("/sentence", async (request, reply) => {
     const layout = layoutForHtmx(request);
-    const sentence = await getRandomSentence(getKnex());
+    let sentence;
+    if (request.query && (request.query as { id?: number }).id) {
+      const id = (request.query as { id?: number }).id!;
+      sentence = await getSentenceById(getKnex(), id);
+    } else {
+      sentence = await getRandomSentence(getKnex());
+    }
     if (!sentence) {
       return reply.view("partials/error.ejs", {
         message: "Server failed to get random sentence",
@@ -46,8 +57,10 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
         zh_sentence: sentence.zh,
         en_sentence: sentence.en,
         pinyin,
+        has_audio: sentence.has_audio,
+        audio_id: sentence.audio_id,
       },
-      layout ? { layout } : {},
+      layout ? { layout } : {}
     );
   });
 
@@ -64,7 +77,7 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
       {
         progressValue: RANDOM_PROGRESS_VALUE,
       },
-      layout ? { layout } : {},
+      layout ? { layout } : {}
     );
   });
 
@@ -75,6 +88,12 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
     return reply.view("partials/theme-button.ejs", {
       theme: nextTheme,
     });
+  });
+
+  fastify.get("/audio/:id", async (request, reply) => {
+    const id = (request.params as { id: string }).id;
+    const audio = await getSentenceTatoebaAudio(getKnex(), parseInt(id, 10));
+    return reply.type("audio/ogg; codecs=vorbis").send(audio);
   });
 };
 

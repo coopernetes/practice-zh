@@ -19,6 +19,15 @@
         <%= en_sentence %>
       </p>
     </details>
+    <% if (has_audio) { %>
+      <details>
+        <summary>Reveal audio</summary>
+        <audio controls>
+          <source src="/audio/<%= audio_id %>" type="audio/ogg">
+          Your browser does not support the audio element.
+        </audio>
+      </details>
+      <% } %>
   </div>
 </div>
 <div class="grid quiz-buttons">
