@@ -18,20 +18,20 @@ export async function seed(knex: Knex): Promise<void> {
     const match = audioFile.match(/sentences_custom_(\d+)\.ogg$/);
     if (!match) continue;
 
-    const sentenceId = parseInt(match[1], 10);
+    const zhId = parseInt(match[1], 10);
     const sentence = await knex("sentences_custom")
-      .where({ id: sentenceId })
+      .where({ zh_id: zhId })
       .first();
 
     if (!sentence) {
       console.warn(
-        `Custom sentence with ID ${sentenceId} not found, skipping audio file: ${audioFile}`,
+        `Custom sentence with zh_id ${zhId} not found, skipping audio file: ${audioFile}`,
       );
       continue;
     }
 
     await knex("sentences_custom_audio").insert({
-      sentence_id: sentenceId,
+      zh_id: zhId,
       audio_blob: Buffer.from(readFileSync(join(audioDir, audioFile))),
       source: "qwen3-tts-flash",
     });
@@ -45,20 +45,20 @@ export async function seed(knex: Knex): Promise<void> {
     const match = audioFile.match(/sentences_tatoeba_(\d+)\.ogg$/);
     if (!match) continue;
 
-    const sentenceId = parseInt(match[1], 10);
+    const zhId = parseInt(match[1], 10);
     const sentence = await knex("sentences_tatoeba")
-      .where({ id: sentenceId })
+      .where({ zh_id: zhId })
       .first();
 
     if (!sentence) {
       console.warn(
-        `Tatoeba sentence with ID ${sentenceId} not found, skipping audio file: ${audioFile}`,
+        `Tatoeba sentence with zh_id ${zhId} not found, skipping audio file: ${audioFile}`,
       );
       continue;
     }
 
     await knex("sentences_tatoeba_audio").insert({
-      sentence_id: sentenceId,
+      zh_id: zhId,
       audio_blob: Buffer.from(readFileSync(join(audioDir, audioFile))),
       source: "qwen3-tts-flash",
     });

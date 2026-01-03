@@ -18,16 +18,11 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable("sentences_custom_audio", (table) => {
     table.increments("id").primary();
-    table
-      .integer("sentence_id")
-      .notNullable()
-      .references("id")
-      .inTable("sentences_custom")
-      .onDelete("CASCADE");
+    table.integer("zh_id").notNullable();
     table.binary("audio_blob").notNullable();
     table.string("source").notNullable();
     table.timestamp("created_at").defaultTo(knex.fn.now()).notNullable();
-    table.unique(["sentence_id", "source"]);
+    table.unique(["zh_id", "source"]);
   });
 }
 

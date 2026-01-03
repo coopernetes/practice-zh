@@ -12,22 +12,17 @@ export async function up(knex: Knex): Promise<void> {
     table.increments("id").primary();
     table.text("zh").notNullable();
     table.text("en").notNullable();
-    table.integer("zh_id").nullable();
-    table.integer("en_id").nullable();
+    table.integer("zh_id").notNullable();
+    table.integer("en_id").notNullable();
   });
 
   await knex.schema.createTable("sentences_tatoeba_audio", (table) => {
     table.increments("id").primary();
-    table
-      .integer("sentence_id")
-      .notNullable()
-      .references("id")
-      .inTable("sentences_tatoeba")
-      .onDelete("CASCADE");
+    table.integer("zh_id").notNullable();
     table.binary("audio_blob").notNullable();
     table.string("source").notNullable();
     table.timestamp("created_at").defaultTo(knex.fn.now()).notNullable();
-    table.unique(["sentence_id", "source"]);
+    table.unique(["zh_id", "source"]);
   });
 }
 

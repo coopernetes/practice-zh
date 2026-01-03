@@ -61,7 +61,7 @@ export const hasASCII = (str: string) => {
 };
 
 export const getTatoebaSentence = async (
-  knex: Knex
+  knex: Knex,
 ): Promise<Omit<QuizSentence, "components"> | undefined> => {
   const sentence = await knex<SentenceTatoeba>("sentences_tatoeba")
     .select("*")
@@ -80,7 +80,7 @@ export const getTatoebaSentence = async (
 };
 
 export const getRandomSentence = async (
-  knex: Knex
+  knex: Knex,
 ): Promise<QuizSentence | undefined> => {
   const MAX_ATTEMPTS = 10;
   let attempt = 0;
@@ -100,7 +100,7 @@ export const getRandomSentence = async (
       };
     } else {
       console.warn(
-        `Reconstruction mismatch: original="${sentence.zh}", reconstructed="${reconstructed}"`
+        `Reconstruction mismatch: original="${sentence.zh}", reconstructed="${reconstructed}"`,
       );
     }
     attempt++;
@@ -111,7 +111,7 @@ export const getRandomSentence = async (
 
 export const getSentenceById = async (
   knex: Knex,
-  id: number
+  id: number,
 ): Promise<QuizSentence | undefined> => {
   const sentence = await knex<SentenceTatoeba>("sentences_tatoeba")
     .select("*")
@@ -139,7 +139,7 @@ export const getSentenceById = async (
 
 export const getComponentsForSentence = async (
   knex: Knex,
-  sentenceZh: string
+  sentenceZh: string,
 ): Promise<WordComponent[]> => {
   const components: WordComponent[] = [];
   const segments = nodejieba.cut(sentenceZh);
@@ -155,7 +155,7 @@ export const getComponentsForSentence = async (
       // Try character-by-character fallback for multi-character segments
       if (segment.length > 1) {
         console.log(
-          `Segment not found: ${segment}, trying character-by-character`
+          `Segment not found: ${segment}, trying character-by-character`,
         );
         let allFound = true;
         const charWords = [];
@@ -191,7 +191,7 @@ export const getComponentsForSentence = async (
             console.log(`Parsed as quantity: ${numPart} + ${measurePart}`);
             components.push(
               await getWordComponent(knex, numPart),
-              await getWordComponent(knex, measurePart)
+              await getWordComponent(knex, measurePart),
             );
             foundQuantity = true;
             break;
@@ -207,7 +207,7 @@ export const getComponentsForSentence = async (
 
 export const existsInWordLists = async (
   knex: Knex,
-  word: string
+  word: string,
 ): Promise<boolean> => {
   const countResult = await knex<Word>("words_hsk")
     .count<{ count: number }>("id as count")
@@ -228,7 +228,7 @@ export const existsInWordLists = async (
 
 export const getWordComponent = async (
   knex: Knex,
-  word: string
+  word: string,
 ): Promise<WordComponent> => {
   const hskWord = await knex<Word>("words_hsk")
     .where("simplified_zh", word)
@@ -256,11 +256,18 @@ export const getWordComponent = async (
 
 export const sentenceTatoebaHasAudio = async (
   knex: Knex,
-  sentence_id: number
+  sentence_id: number,
 ) => {
+  const sentence = await knex("sentences_tatoeba")
+    .select("zh_id")
+    .where("id", sentence_id)
+    .first();
+
+  if (!sentence?.zh_id) return false;
+
   const audioCountResult = await knex("sentences_tatoeba_audio")
     .count<{ count: number }>("id as count")
-    .where("sentence_id", sentence_id)
+    .where("zh_id", sentence.zh_id)
     .first();
 
   return (audioCountResult?.count ?? 0) > 0;
@@ -268,11 +275,18 @@ export const sentenceTatoebaHasAudio = async (
 
 export const getSentenceTatoebaAudioId = async (
   knex: Knex,
-  sentence_id: number
+  sentence_id: number,
 ): Promise<number | undefined> => {
+  const sentence = await knex("sentences_tatoeba")
+    .select("zh_id")
+    .where("id", sentence_id)
+    .first();
+
+  if (!sentence?.zh_id) return undefined;
+
   const audioEntry = await knex("sentences_tatoeba_audio")
     .select("id")
-    .where("sentence_id", sentence_id)
+    .where("zh_id", sentence.zh_id)
     .first();
 
   return audioEntry ? audioEntry.id : undefined;
@@ -280,7 +294,7 @@ export const getSentenceTatoebaAudioId = async (
 
 export const getSentenceTatoebaAudio = async (
   knex: Knex,
-  id: number
+  id: number,
 ): Promise<Buffer | undefined> => {
   const audioEntry = await knex("sentences_tatoeba_audio")
     .select("audio_blob")

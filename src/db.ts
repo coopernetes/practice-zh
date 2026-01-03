@@ -43,7 +43,7 @@ declare module "knex/types/tables.js" {
 
   interface SentenceTatoebaAudio {
     id: number;
-    sentence_id: number;
+    zh_id: number;
     audio_blob: Buffer;
     source: string;
     created_at: Date;
@@ -59,7 +59,7 @@ declare module "knex/types/tables.js" {
 
   interface SentenceCustomAudio {
     id: number;
-    sentence_id: number;
+    zh_id: number;
     audio_blob: Buffer;
     source: string;
     created_at: Date;
