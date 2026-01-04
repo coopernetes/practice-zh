@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 import { readFileSync } from "node:fs";
 
-const input = process.env.SEED_USER_BANK_JSON || "misc/user_bank.json";
+const input = process.env.SEED_USER_BANK_JSON || "data/custom/user_bank.json";
 
 interface BankEntry {
   name: string;
@@ -16,13 +16,19 @@ interface BankTable {
   tags: string;
 }
 
-interface BankWordTable {
+interface BankWordHskTable {
   word_hsk_id: number;
   bank_id: number;
 }
 
+interface BankWordAdditionalTable {
+  word_additional_id: number;
+  bank_id: number;
+}
+
 export async function seed(knex: Knex): Promise<void> {
-  await knex("user_bank_words").del();
+  await knex("user_bank_words_additional").del();
+  await knex("user_bank_words_hsk").del();
   await knex("user_banks").del();
   await knex("users").del();
 
@@ -32,7 +38,7 @@ export async function seed(knex: Knex): Promise<void> {
       email: "user@example.com",
     })
     .returning<Pick<{ id: number; user_name: string; email: string }, "id">[]>(
-      "id"
+      "id",
     )
     .into("users");
 
@@ -40,9 +46,10 @@ export async function seed(knex: Knex): Promise<void> {
   const entries: BankEntry[] = JSON.parse(fileContents);
 
   const inserts: BankTable[] = [];
-  const wordInserts: BankWordTable[] = [];
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i];
+  const wordHskInserts: BankWordHskTable[] = [];
+  const wordAdditionalInserts: BankWordAdditionalTable[] = [];
+
+  for (const entry of entries) {
     const bankInsert = await knex
       .insert<BankTable>({
         name: entry.name,
@@ -51,17 +58,55 @@ export async function seed(knex: Knex): Promise<void> {
       })
       .returning<Pick<BankTable, "id">[]>("id")
       .into("user_banks");
-    const wordIds = await knex
-      .select("id")
+
+    // Check words_hsk
+    const hskWords = await knex
+      .select(["id", "simplified_zh"])
       .from("words_hsk")
       .whereIn("simplified_zh", entry.words);
-    wordIds.forEach((wordId) => {
-      wordInserts.push({
+
+    // Check words_additional
+    const additionalWords = await knex
+      .select(["id", "simplified_zh"])
+      .from("words_additional")
+      .whereIn("simplified_zh", entry.words);
+
+    const foundWords = new Set([
+      ...hskWords.map((w) => w.simplified_zh),
+      ...additionalWords.map((w) => w.simplified_zh),
+    ]);
+    const missing = entry.words.filter((word) => !foundWords.has(word));
+    if (missing.length > 0) {
+      console.warn(
+        `Warning: Some words in bank "${entry.name}" were not found.`,
+      );
+      console.warn(`Missing words: ${missing.join(", ")}`);
+    }
+
+    hskWords.forEach((wordId) => {
+      wordHskInserts.push({
         word_hsk_id: wordId.id,
         bank_id: bankInsert[0].id,
       });
     });
+
+    additionalWords.forEach((wordId) => {
+      wordAdditionalInserts.push({
+        word_additional_id: wordId.id,
+        bank_id: bankInsert[0].id,
+      });
+    });
   }
+
   await knex.batchInsert("user_banks", inserts, 100);
-  await knex.batchInsert("user_bank_words", wordInserts, 100);
+  if (wordHskInserts.length > 0) {
+    await knex.batchInsert("user_bank_words_hsk", wordHskInserts, 100);
+  }
+  if (wordAdditionalInserts.length > 0) {
+    await knex.batchInsert(
+      "user_bank_words_additional",
+      wordAdditionalInserts,
+      100,
+    );
+  }
 }

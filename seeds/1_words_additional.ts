@@ -7,12 +7,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 interface WordEntry {
-  simplified_zh: string;
-  traditional_zh: string;
+  simplified_zh?: string;
+  traditional_zh?: string;
   pinyin_numeric: string;
-  english: string[]; // Array of definitions
-  hsk_approx: string;
-  source: string;
+  english?: string[];
+  hsk_approx?: string;
+  source?: string;
+  pinyin?: string;
+  definitions?: string[];
+  hsk_level?: string | number;
 }
 
 const convertNumericToPinyin = (pinyinNumeric: string): string => {
@@ -44,10 +47,10 @@ const convertNumericToPinyin = (pinyinNumeric: string): string => {
 
 export async function seed(knex: Knex): Promise<void> {
   const jsonFiles = [
-    "../misc/words_additional.json",
-    "../misc/words_additional_custom.json",
-    "../misc/unknown_chunks_cedict_enriched.json",
-    "../misc/words_additional_custom_from_unknown_nouns.json",
+    "../data/interim/words_additional.json",
+    "../data/interim/words_corpus_cedict.json",
+    "../data/interim/custom_words_enriched.json",
+    "../data/interim/pronouns_enriched.json",
   ];
 
   console.log("Reading word files:", jsonFiles.join(", "));
@@ -72,12 +75,14 @@ export async function seed(knex: Knex): Promise<void> {
 
   const entriesToInsert = words.map((word) => ({
     simplified_zh: word.simplified_zh,
-    traditional_zh: word.traditional_zh,
-    pinyin: convertNumericToPinyin(word.pinyin_numeric),
+    traditional_zh: word.traditional_zh || word.simplified_zh,
+    pinyin: word.pinyin
+      ? word.pinyin
+      : convertNumericToPinyin(word.pinyin_numeric),
     pinyin_numeric: word.pinyin_numeric,
-    english: JSON.stringify(word.english),
-    hsk_approx: word.hsk_approx || "unknown",
-    source: word.source,
+    english: JSON.stringify(word.english || word.definitions),
+    hsk_approx: word.hsk_approx || word.hsk_level || "unknown",
+    source: word.source || "corpus",
   }));
 
   console.log(`Upserting ${entriesToInsert.length} words...`);
@@ -102,7 +107,7 @@ export async function seed(knex: Knex): Promise<void> {
         entry.english,
         entry.hsk_approx,
         entry.source,
-      ]
+      ],
     );
   }
 

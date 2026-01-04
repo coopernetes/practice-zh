@@ -17,7 +17,7 @@
     "seed": "knex seed:run",
     "seed:words": "knex seed:run --specific=1_words_additional.ts",
     "sqlite:clean": "npm run clean && npm run migrate && npm run seed",
-    "sqlite:setup": "npm run sqlite:clean && npm run pipeline:full",
+    "sqlite:setup": "npm run pipeline && npm run sqlite:clean",
     "pipeline": "node ./scripts/pipeline.js",
     "pipeline:full": "node ./scripts/pipeline.js --full",
     "pipeline:stats": "node ./scripts/pipeline.js stats",

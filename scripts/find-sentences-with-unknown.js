@@ -51,10 +51,10 @@ async function main() {
   console.error("Loading vocabulary...");
   const hskWords = loadHskWords();
   const additionalWords = loadWordsFromJsonFiles([
-    "./misc/words_additional.json",
-    "./misc/words_additional_custom.json",
-    "./misc/unknown_chunks_cedict_enriched.json",
-    "./misc/words_additional_custom_from_unknown_nouns.json",
+    "./data/interim/words_additional.json",
+    "./data/interim/words_corpus_cedict.json",
+    "./data/interim/custom_words_enriched.json",
+    "./data/interim/pronouns_enriched.json",
   ]);
 
   const known = new Set([...hskWords, ...additionalWords]);

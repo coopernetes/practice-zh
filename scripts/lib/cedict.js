@@ -7,7 +7,7 @@
 import fs from "node:fs";
 import readline from "node:readline";
 
-export const CEDICT_PATH = "./misc/cedict_1_0_ts_utf-8_mdbg.txt";
+export const CEDICT_PATH = "./data/raw/cedict_1_0_ts_utf-8_mdbg.txt";
 
 /**
  * Parse a line from CC-CEDICT

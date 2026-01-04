@@ -3,9 +3,9 @@ import { open } from "node:fs/promises";
 
 const sentencesTatoeabaTsv =
   process.env.SEED_SENTENCES_TATOEBA_TSV ||
-  "misc/sentences_tatoeba.simplified.tsv";
+  "data/processed/sentences_tatoeba.simplified.tsv";
 const sentencesCustomTsv =
-  process.env.SEED_SENTENCES_CUSTOM_TSV || "misc/sentences_custom.tsv";
+  process.env.SEED_SENTENCES_CUSTOM_TSV || "data/custom/sentences_custom.tsv";
 
 async function parseSentencesTsv(tsvPath: string) {
   const sentences = [];

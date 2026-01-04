@@ -7,7 +7,7 @@ export async function seed(knex: Knex): Promise<void> {
   await knex("sentences_custom_audio").del();
   await knex("sentences_tatoeba_audio").del();
 
-  const audioDir = "misc/audio";
+  const audioDir = "data/custom/audio";
   const audioFiles = readdirSync(audioDir).filter((f) => f.endsWith(".ogg"));
 
   // Process custom sentence audio files
