@@ -13,3 +13,6 @@
 [submodule "vendor/chinese-poetry"]
 	path = vendor/chinese-poetry
 	url = https://github.com/chinese-poetry/chinese-poetry.git
+[submodule "vendor/chengyu-dictionary"]
+	path = vendor/chengyu-dictionary
+	url = https://github.com/MegamindHenry/chengyu-dictionary.git
