@@ -6,9 +6,9 @@
 4. ~~Add basic routing.~~ Done.
 5. ~~Setup databases to hold words, sentences and sentence components.~~ Done
 6. ~~Seed the database with initial sentences.~~ Done.
-7. Create a basic test page that pulls random sentences from the database.
-8. Style the page to show Chinese characters, Pinyin and English translation.
-9. Add text-to-speech buttons for Chinese. Use existing audio in the database where possible.
+7. ~~Create a basic test page that pulls random sentences from the database.~~ Done.
+8. ~~Style the page to show Chinese characters, Pinyin and English translation.~~ Done.
+9. ~~Add text-to-speech buttons for Chinese. Use existing audio in the database where possible.~~ Done.
 10. ~~Setup the database to hold user "banks" of words they know.~~ Done.
 11. Add a basic test flow that quizzes users on sentences made up of words in their known word bank.
 12. Track user scores and progress.
