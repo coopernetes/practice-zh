@@ -5,6 +5,7 @@ import type {
   WordAdditional,
 } from "knex/types/tables.js";
 import nodejieba from "nodejieba";
+import { hasASCII, isChinesePunctuation } from "./utils.js";
 
 interface QuizSentence {
   id: number;
@@ -20,45 +21,6 @@ interface WordComponent {
   punctuation: boolean;
   pinyin?: string;
 }
-
-// CJK Unified Ideographs: U+4E00 to U+9FFF
-export const isCJK = (char: string) => {
-  const code = char.charCodeAt(0);
-  return code >= 0x4e00 && code <= 0x9fff;
-};
-
-// Chinese punctuation marks
-export const CHINESE_PUNCTUATION = new Set([
-  "。",
-  "，",
-  "、",
-  "；",
-  "：",
-  "？",
-  "！",
-  '"',
-  '"',
-  "'",
-  "'",
-  "（",
-  "）",
-  "【",
-  "】",
-  "《",
-  "》",
-  "—",
-  "…",
-  "·",
-  "～",
-]);
-
-export const isChinesePunctuation = (char: string) => {
-  return CHINESE_PUNCTUATION.has(char);
-};
-
-export const hasASCII = (str: string) => {
-  return /[A-Za-z0-9]/.test(str);
-};
 
 export const getTatoebaSentence = async (
   knex: Knex,

@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import { readFileSync } from "node:fs";
+import { randomBytes, pbkdf2Sync } from "node:crypto";
 
 const input = process.env.SEED_USER_BANK_JSON || "data/custom/user_bank.json";
 
@@ -26,6 +27,16 @@ interface BankWordAdditionalTable {
   bank_id: number;
 }
 
+const TEST_PASSWORD = "abcdef123456".normalize();
+const TEST_SALT = Buffer.from(randomBytes(16)).toString("hex");
+const TEST_PASSWORD_HASH = pbkdf2Sync(
+  TEST_PASSWORD,
+  TEST_SALT,
+  10000,
+  64,
+  "sha512",
+).toString("hex");
+
 export async function seed(knex: Knex): Promise<void> {
   await knex("user_bank_words_additional").del();
   await knex("user_bank_words_hsk").del();
@@ -36,6 +47,10 @@ export async function seed(knex: Knex): Promise<void> {
     .insert<{ id: number; user_name: string; email: string }>({
       user_name: "default_user",
       email: "user@example.com",
+      password_hash: TEST_PASSWORD_HASH,
+      salt: TEST_SALT,
+      created_at: knex.fn.now(),
+      password_expires_at: knex.raw("(datetime('now', '+30 days'))"),
     })
     .returning<Pick<{ id: number; user_name: string; email: string }, "id">[]>(
       "id",

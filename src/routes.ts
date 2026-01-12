@@ -83,7 +83,7 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
       );
     }
 
-    return reply.view("partials/sentence.ejs", data, layout ? { layout } : {});
+    return reply.view("random.ejs", data, layout ? { layout } : {});
   });
 
   const RANDOM_PROGRESS_VALUE = Math.floor(Math.random() * 100);
@@ -112,6 +112,15 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
     const id = (request.params as { id: string }).id;
     const audio = await getSentenceTatoebaAudio(getKnex(), parseInt(id, 10));
     return reply.type("audio/ogg; codecs=vorbis").send(audio);
+  });
+
+  fastify.get("/privacy", async (request, reply) => {
+    const layout = layoutForHtmx(request);
+    return reply.view(
+      "privacy.ejs",
+      { title: "Privacy Policy" },
+      layout ? { layout } : {},
+    );
   });
 };
 

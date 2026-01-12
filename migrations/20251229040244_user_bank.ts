@@ -9,10 +9,27 @@ export async function up(knex: Knex): Promise<void> {
   ) {
     return;
   }
+  const client = knex.client.config.client;
+  let passwordExpiresDefault;
+  if (client === "better-sqlite3") {
+    passwordExpiresDefault = knex.raw("(datetime('now', '+30 days'))");
+  } else if (client === "pg") {
+    passwordExpiresDefault = knex.raw("(NOW() + INTERVAL '30 days')");
+  } else {
+    throw new Error(`Unsupported DB client: ${client}`);
+  }
   await knex.schema.createTable("users", (table) => {
     table.increments("id").primary();
     table.string("user_name").notNullable();
     table.string("email").notNullable();
+    table.string("password_hash").notNullable();
+    table.string("salt").notNullable();
+    table.dateTime("created_at").notNullable().defaultTo(knex.fn.now());
+    table
+      .dateTime("password_expires_at")
+      .notNullable()
+      .defaultTo(passwordExpiresDefault);
+    table.unique("email");
   });
   await knex.schema.createTable("user_banks", (table) => {
     table.increments("id").primary();

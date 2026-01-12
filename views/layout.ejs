@@ -4,8 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/public/favicon.ico" />
-    <link rel="stylesheet" href="/public/css/pico.colors.min.css" />
-    <link rel="stylesheet" href="/public/css/pico.amber.min.css" />
+    <link rel="stylesheet" href="/public/css/pico.slate.min.css" />
     <link rel="stylesheet" href="/public/css/styles.css" />
     <script src="/public/js/htmx.min.js"></script>
     <script src="/public/js/main.js"></script>
@@ -84,6 +83,15 @@
     <footer class="container-fluid" id="footer-area">
       <hr />
       <div class="grid">
+        <div>
+          <a
+            href="/privacy"
+            hx-get="/privacy"
+            hx-target="#content-area"
+            hx-push-url="true"
+            >Privacy Policy</a
+          >
+        </div>
         <div>
           <a href="https://github.com/coopernetes/practice-zh" target="_blank"
             >GitHub</a
