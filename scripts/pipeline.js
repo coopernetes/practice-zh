@@ -22,11 +22,7 @@ import {
   getWordCounts,
   getSentenceCount,
 } from "./lib/db.js";
-import {
-  isCJK,
-  isChinesePunctuation,
-  hasASCII,
-} from "./lib/chinese.js";
+import { isCJK, isChinesePunctuation, hasASCII } from "./lib/chinese.js";
 import {
   loadHskWords,
   loadWordsFromJsonFiles,

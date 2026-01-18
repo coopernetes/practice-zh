@@ -1,2 +1,4 @@
 vendor/
-public/css/pico.min.css
+public/css/pico.*.css
+public/js/htmx.min.js
+public/site.webmanifest

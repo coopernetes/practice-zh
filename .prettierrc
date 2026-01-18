@@ -1,3 +1,11 @@
 {
-  "plugins": ["prettier-plugin-ejs"]
+  "plugins": ["prettier-plugin-ejs"],
+  "overrides": [
+    {
+      "files": "docusaurus/**/*.md",
+      "options": {
+        "proseWrap": "always"
+      }
+    }
+  ]
 }

@@ -18,7 +18,7 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   await knex.schema.raw(
-    `CREATE INDEX IF NOT EXISTS words_hsk_zh_index ON words_hsk (simplified_zh);`
+    `CREATE INDEX IF NOT EXISTS words_hsk_zh_index ON words_hsk (simplified_zh);`,
   );
 }
 

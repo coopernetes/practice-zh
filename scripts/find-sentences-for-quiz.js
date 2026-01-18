@@ -124,7 +124,7 @@ async function findQuizSentences(
   userId,
   minCoverage = 0.8,
   maxCoverage = 0.95,
-  limit = 100
+  limit = 100,
 ) {
   const userWordBank = await getUserWordBank(userId);
   console.log(`User knows ${userWordBank.size} words (from all banks)`);
@@ -175,12 +175,12 @@ async function main() {
   // Display first 10
   for (const sentence of quizSentences.slice(0, 10)) {
     console.log(
-      `[Tatoeba #${sentence.zh_id}] Coverage: ${(sentence.coverage * 100).toFixed(1)}%`
+      `[Tatoeba #${sentence.zh_id}] Coverage: ${(sentence.coverage * 100).toFixed(1)}%`,
     );
     console.log(`  ZH: ${sentence.zh}`);
     console.log(`  EN: ${sentence.en}`);
     console.log(
-      `  Known: ${sentence.knownSegments}/${sentence.totalSegments} segments`
+      `  Known: ${sentence.knownSegments}/${sentence.totalSegments} segments`,
     );
     if (sentence.unknownSegments.length > 0) {
       console.log(`  Unknown: ${sentence.unknownSegments.join(", ")}`);
@@ -194,13 +194,13 @@ async function main() {
   ];
   for (const s of quizSentences) {
     lines.push(
-      `${s.zh_id}\t${s.coverage.toFixed(3)}\t${s.totalSegments}\t${s.knownSegments}\t${s.unknownSegments.join(",")}\t${s.zh}\t${s.en}`
+      `${s.zh_id}\t${s.coverage.toFixed(3)}\t${s.totalSegments}\t${s.knownSegments}\t${s.unknownSegments.join(",")}\t${s.zh}\t${s.en}`,
     );
   }
 
   fs.writeFileSync("misc/quiz_sentences.tsv", lines.join("\n"));
   console.log(
-    `\nWrote ${quizSentences.length} sentences to misc/quiz_sentences.tsv`
+    `\nWrote ${quizSentences.length} sentences to misc/quiz_sentences.tsv`,
   );
 
   await db.destroy();
