@@ -18,9 +18,16 @@
 
   <body>
     <header class="container-fluid">
-      <div style="align-content: start; justify-self: start">
-        <h1><a href="/" style="text-decoration: none">Practice 中文</a></h1>
-        <p><i>学习中文（普通话）</i></p>
+      <div class="grid">
+        <div style="align-content: start; justify-self: start">
+          <h1><a href="/" style="text-decoration: none">Practice 中文</a></h1>
+          <p><i>学习中文（普通话）</i></p>
+        </div>
+        <div style="justify-self: end; align-self: center">
+          <span id="theme-toggle-wrapper" style="margin: 0">
+            <%- include('partials/theme-button', { theme: 'dark' }) %>
+          </span>
+        </div>
       </div>
       <nav>
         <ul>
@@ -78,9 +85,9 @@
                 >
               </div>
               <div id="right-button-2-2">
-                <span id="theme-toggle-wrapper" style="margin: 0">
-                  <%- include('partials/theme-button', { theme: 'dark' }) %>
-                </span>
+                <a href="/word-banks" id="word-banks-button" role="button"
+                  >Word Banks</a
+                >
               </div>
             </div>
           </li>
@@ -101,15 +108,11 @@
             hx-push-url="true"
             >Privacy Policy</a
           >
-        </div>
-        <div>
           <a
             href="https://coopernetes.github.io/practice-zh/blog"
             target="_blank"
             >Blog</a
           >
-        </div>
-        <div>
           <a href="https://github.com/coopernetes/practice-zh" target="_blank"
             >GitHub</a
           >

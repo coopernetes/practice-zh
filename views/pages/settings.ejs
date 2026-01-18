@@ -1,0 +1,32 @@
+<section>
+  <h1>Settings</h1>
+  <% if (loggedIn) { %>
+  <form id="settings-form" hx-post="/api/user/settings" hx-trigger="change delay:300ms, submit" hx-target="#settings-message" hx-swap="innerHTML">
+    <div>
+      <label for="unknown_word_threshold">Unknown Word Threshold: <span id="threshold-value"><%= settings.unknown_word_threshold ?? 80 %></span>%</label>
+      <input type="range" id="unknown_word_threshold" name="unknown_word_threshold" step="10" max="100" value="<%= settings.unknown_word_threshold ?? 80 %>" oninput="document.getElementById('threshold-value').innerText = this.value">
+    </div>
+    <div>
+      <label>Enable Audio:</label>
+      <label><input type="radio" name="enable_audio" value="true" <%= settings.enable_audio ? 'checked' : '' %>> Yes</label>
+      <label><input type="radio" name="enable_audio" value="false" <%= !settings.enable_audio ? 'checked' : '' %>> No</label>
+    </div>
+    <div>
+      <label>Enable Word Banks:</label>
+      <label><input type="radio" name="enable_word_banks" value="true" <%= settings.enable_word_banks ? 'checked' : '' %>> Yes</label>
+      <label><input type="radio" name="enable_word_banks" value="false" <%= !settings.enable_word_banks ? 'checked' : '' %>> No</label>
+    </div>
+    <div>
+      <label for="ui_language">UI Language:</label>
+      <select id="ui_language" name="ui_language">
+        <option value="en" <%= settings.ui_language === 'en' ? 'selected' : '' %>>English / 英文</option>
+        <option value="zh" <%= settings.ui_language === 'zh' ? 'selected' : '' %>>Chinese / 中文</option>
+      </select>
+    </div>
+    <button type="submit">Save Settings</button>
+    <div id="settings-message"></div>
+  </form>
+  <% } else { %>
+  <p>Please <a href="/login">log in</a> to access your settings.</p>
+  <% } %>
+</section>

@@ -71,6 +71,40 @@ export const uiRoutes = async (fastify: fastify.FastifyInstance) => {
     return reply.view("partials/logout-message.ejs", layout ? { layout } : {});
   });
 
+  fastify.get("/settings", async (request, reply) => {
+    const layout = layoutForHtmx(request);
+    const userId = request.session?.userId;
+
+    if (userId) {
+      const knex = getKnex();
+      const user = await knex("users")
+        .select("settings")
+        .where("id", userId)
+        .first();
+
+      if (user) {
+        let settingsObj = {};
+        try {
+          settingsObj =
+            typeof user.settings === "string"
+              ? JSON.parse(user.settings)
+              : user.settings || {};
+        } catch (e) {}
+        return reply.view(
+          "pages/settings.ejs",
+          { title: "Settings", settings: settingsObj, loggedIn: true },
+          layout ? { layout } : {},
+        );
+      }
+      console.error(`User with ID ${userId} not found.`);
+    }
+    return reply.view(
+      "pages/settings.ejs",
+      { title: "Settings", loggedIn: false },
+      layout ? { layout } : {},
+    );
+  });
+
   fastify.get("/quiz", async (request, reply) => {
     const layout = layoutForHtmx(request);
     return reply.view(

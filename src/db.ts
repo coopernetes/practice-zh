@@ -90,6 +90,15 @@ declare module "knex/types/tables.js" {
     salt: string;
     created_at: Date;
     password_expires_at: Date;
+    settings: UserSettings;
+  }
+
+  interface UserSettings {
+    unknown_word_threshold?: number;
+    enable_audio?: boolean;
+    enable_word_banks?: boolean;
+    ui_language?: "en" | "zh" | "system";
+    ui_theme?: "light" | "dark" | "system";
   }
 
   interface UserBank {

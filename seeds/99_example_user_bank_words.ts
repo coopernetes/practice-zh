@@ -45,7 +45,6 @@ export async function seed(knex: Knex): Promise<void> {
 
   const userInsert = await knex
     .insert<{ id: number; user_name: string; email: string }>({
-      user_name: "default_user",
       email: "user@example.com",
       password_hash: TEST_PASSWORD_HASH,
       salt: TEST_SALT,

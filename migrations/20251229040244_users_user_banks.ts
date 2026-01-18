@@ -20,7 +20,6 @@ export async function up(knex: Knex): Promise<void> {
   }
   await knex.schema.createTable("users", (table) => {
     table.increments("id").primary();
-    table.string("user_name").notNullable();
     table.string("email").notNullable();
     table.string("password_hash").notNullable();
     table.string("salt").notNullable();
@@ -29,6 +28,7 @@ export async function up(knex: Knex): Promise<void> {
       .dateTime("password_expires_at")
       .notNullable()
       .defaultTo(passwordExpiresDefault);
+    table.text("settings").notNullable().defaultTo("{}");
     table.unique("email");
   });
   await knex.schema.createTable("user_banks", (table) => {
@@ -85,4 +85,5 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTableIfExists("user_bank_words_additional");
   await knex.schema.dropTableIfExists("user_bank_words_hsk");
   await knex.schema.dropTableIfExists("user_banks");
+  await knex.schema.dropTableIfExists("users");
 }

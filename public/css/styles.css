@@ -4,6 +4,7 @@ div#right-button-grid {
   grid-template-rows: repeat(2, 1fr);
   grid-column-gap: 10px;
   grid-row-gap: 10px;
+  width: 100%;
 }
 
 div#right-button-1-1 {
@@ -18,14 +19,14 @@ div#right-button-2-1 {
 div#right-button-2-2 {
   grid-area: 2 / 2 / 3 / 3;
 }
+div#right-button-grid > div {
+  width: 100%;
+}
 
-a#settings-button {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide-icon lucide lucide-settings'><path d='M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z'></path><circle cx='12' cy='12' r='3'></circle></svg>");
-  background-position: center left;
-  background-repeat: no-repeat;
-  background-size: 1rem;
-  margin: auto;
-  padding-left: 1.15rem;
+div#right-button-grid a[role="button"] {
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 a#login-button {
@@ -33,9 +34,8 @@ a#login-button {
   background-position: center left;
   background-repeat: no-repeat;
   background-size: 1rem;
-  margin: auto;
   padding-left: 1.75rem;
-  padding-right: 1rem;
+  padding-right: 1.1rem;
 }
 
 a#logout-button {
@@ -43,7 +43,23 @@ a#logout-button {
   background-position: center left;
   background-repeat: no-repeat;
   background-size: 1rem;
-  margin: auto;
+  padding-left: 1.75rem;
+  padding-right: 1.1rem;
+}
+
+a#settings-button {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide-icon lucide lucide-settings'><path d='M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z'></path><circle cx='12' cy='12' r='3'></circle></svg>");
+  background-position: center left;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  padding-left: 1.15rem;
+}
+
+a#word-banks-button {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide-icon lucide lucide-notebook-pen'><path d='M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4'></path><path d='M2 6h4'></path><path d='M2 10h4'></path><path d='M2 14h4'></path><path d='M2 18h4'></path><path d='M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z'></path></svg>");
+  background-position: center left;
+  background-repeat: no-repeat;
+  background-size: 1rem;
   padding-left: 1.25rem;
 }
 
