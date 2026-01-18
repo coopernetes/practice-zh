@@ -58,36 +58,30 @@
         <ul>
           <li>
             <span id="logout-message"></span>
-            <div
-              style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem"
-            >
-              <a
-                href="/login"
-                role="button"
-                class="login-button"
-                style="padding: 0.5rem 1rem; margin: 0"
-                >Login</a
-              >
-              <a
-                hx-post="/logout"
-                role="button"
-                class="logout-button"
-                style="padding: 0.5rem 1rem; margin: 0"
-                hx-target="#logout-message"
-                hx-swap="innerHTML"
-                >Logout</a
-              >
-              <a
-                href="https://coopernetes.github.io/practice-zh"
-                role="button"
-                target="_blank"
-                class="external-link-button"
-                style="padding: 0.5rem 1rem; margin: 0"
-                >Docs</a
-              >
-              <span id="theme-toggle-wrapper" style="margin: 0">
-                <%- include('partials/theme-button', { theme: 'dark' }) %>
-              </span>
+            <div class="grid" id="right-button-grid">
+              <div id="right-button-1-1">
+                <a href="/login" role="button" id="login-button">Login</a>
+              </div>
+              <div id="right-button-1-2">
+                <a
+                  hx-post="/logout"
+                  role="button"
+                  id="logout-button"
+                  hx-target="#logout-message"
+                  hx-swap="innerHTML"
+                  >Logout</a
+                >
+              </div>
+              <div id="right-button-2-1">
+                <a href="/settings" id="settings-button" role="button"
+                  >Settings</a
+                >
+              </div>
+              <div id="right-button-2-2">
+                <span id="theme-toggle-wrapper" style="margin: 0">
+                  <%- include('partials/theme-button', { theme: 'dark' }) %>
+                </span>
+              </div>
             </div>
           </li>
         </ul>

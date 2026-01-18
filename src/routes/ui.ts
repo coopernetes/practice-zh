@@ -21,7 +21,7 @@ export const uiRoutes = async (fastify: fastify.FastifyInstance) => {
   fastify.get("/login", async (request, reply) => {
     const layout = layoutForHtmx(request);
     return reply.view(
-      "login.ejs",
+      "pages/login.ejs",
       { title: "Login", error: undefined },
       layout ? { layout } : {},
     );
@@ -53,7 +53,7 @@ export const uiRoutes = async (fastify: fastify.FastifyInstance) => {
       console.log(`Login attempt with unknown email: ${email}`);
     }
     return reply.view(
-      "login.ejs",
+      "pages/login.ejs",
       { error: "Invalid email or password" },
       layout ? { layout } : {},
     );
