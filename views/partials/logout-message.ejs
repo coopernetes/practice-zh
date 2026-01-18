@@ -1,0 +1,22 @@
+<span id="error">
+  <style>
+    .fade-init {
+      opacity: 1;
+      transition: opacity 1s ease-out;
+    }
+    .fade-out {
+      opacity: 0;
+      transition: opacity 1s ease-out;
+    }
+  </style>
+  <p
+    id="logout-message"
+    class="fade-init"
+    hx-trigger="load"
+    hx-on:load="setTimeout(()=>this.classList.add('fade-out'), 50)"
+    hx-on:afterSettle="setTimeout(() => this.remove(), 1000)"
+    style="color: green"
+  >
+    Logged out successfully!
+  </p>
+</span>

@@ -7,3 +7,11 @@ function copyText(buttonElement) {
     setTimeout(() => feedback.classList.remove("show"), 2000);
   });
 }
+
+function fadeOut(element) {
+  element.style.transition = "opacity 0.5s ease-out";
+  element.style.opacity = 0;
+  setTimeout(() => {
+    element.style.display = "none";
+  }, 3000);
+}

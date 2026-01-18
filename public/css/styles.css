@@ -1,5 +1,25 @@
-a.external {
+a.external-link-button {
   background-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M15 3h6v6%22/><path d=%22M10 14 21 3%22/><path d=%22M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6%22/></svg>");
+  background-position: center right;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+}
+
+/**
+<!----><!----><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide lucide-log-in"><!----><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><!----><polyline points="10 17 15 12 10 7"></polyline><!----><line x1="15" x2="3" y1="12" y2="12"></line><!----><!----><!----></svg><!---->
+*/
+a.login-button {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide-icon lucide lucide-log-in'><path d='M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4'/><polyline points='10 17 15 12 10 7'/><line x1='15' x2='3' y1='12' y2='12'/></svg>");
+  background-position: center right;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+}
+
+/**
+<!----><!----><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide lucide-log-out"><!----><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><!----><polyline points="16 17 21 12 16 7"></polyline><!----><line x1="21" x2="9" y1="12" y2="12"></line><!----><!----><!----></svg><!---->
+*/
+a.logout-button {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide-icon lucide lucide-log-out'><path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/><polyline points='16 17 21 12 16 7'/><line x1='21' x2='9' y1='12' y2='12'/></svg>");
   background-position: center right;
   background-repeat: no-repeat;
   background-size: 1rem;

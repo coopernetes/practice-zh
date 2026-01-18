@@ -1,3 +1,5 @@
+import { pbkdf2Sync } from "crypto";
+
 /** Common Chinese punctuation marks */
 export const CHINESE_PUNCTUATION = new Set([
   "。",
@@ -46,6 +48,24 @@ export function isChinesePunctuation(str: string): boolean {
   return str.length === 1 && CHINESE_PUNCTUATION.has(str);
 }
 
+const DEFAULT_KEY_LENGTH = 64;
+const DEFAULT_ITERATIONS = 10000;
+
+export function verifyPassword(
+  password: string,
+  salt: string,
+  expectedHash: string,
+): boolean {
+  return (
+    pbkdf2Sync(
+      password,
+      salt,
+      DEFAULT_ITERATIONS,
+      DEFAULT_KEY_LENGTH,
+      "sha512",
+    ).toString("hex") === expectedHash
+  );
+}
 export function generatePassword(length: number = 12): string {
   const NUM_MIN = 48;
   const NUM_MAX = 57;

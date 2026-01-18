@@ -1,9 +1,15 @@
 import Fastify from "fastify";
-import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyInstance } from "fastify";
 import { fastifyStatic } from "@fastify/static";
 import { fastifyView } from "@fastify/view";
-import routes from "./routes.js";
+import { fastifyCookie } from "@fastify/cookie";
+import { fastifySession } from "@fastify/session";
+import { fastifyFormbody } from "@fastify/formbody";
+
+import { apiRoutes } from "./routes/api.js";
+import { uiRoutes } from "./routes/ui.js";
 import { join } from "node:path";
+import { randomBytes } from "node:crypto";
 import { pino } from "pino";
 import { knexPlugin, setKnex } from "./db.js";
 import knex from "knex";
@@ -14,6 +20,12 @@ const __dirname = import.meta.dirname;
 declare module "fastify" {
   interface FastifyReply {
     render(viewPath: string, data?: object): void;
+  }
+}
+
+declare module "@fastify/session" {
+  interface FastifySessionObject {
+    userId?: any;
   }
 }
 
@@ -40,8 +52,21 @@ export const setupFastify = async (): Promise<FastifyInstance> => {
     },
     root: join(__dirname, "..", "views"),
   });
+  fastify.register(fastifyFormbody);
+  fastify.register(fastifyCookie);
+  fastify.register(fastifySession, {
+    cookieName: "sessionId",
+    secret:
+      process.env.SESSION_SECRET ||
+      Buffer.from(randomBytes(16)).toString("hex"),
+    cookie: {
+      maxAge: 1209600000, // 14 days
+      secure: process.env.NODE_ENV === "production",
+    },
+  });
   fastify.register(knexPlugin);
-  fastify.register(routes);
+  fastify.register(apiRoutes);
+  fastify.register(uiRoutes);
   return fastify;
 };
 

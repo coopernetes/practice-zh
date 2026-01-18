@@ -1,30 +1,80 @@
 import fastify from "fastify";
-import {
-  getWordComponent,
-  getRandomSentence,
-  getSentenceById,
-  getSentenceTatoebaAudio,
-} from "./quiz.js";
-import { getKnex } from "./db.js";
+import { getRandomSentence, getSentenceById } from "../corpus.js";
+import { getKnex } from "../db.js";
+import { verifyPassword } from "../utils.js";
 
 const layoutForHtmx = (request: fastify.FastifyRequest) => {
   const isHtmx = !!request.headers["hx-request"];
   return isHtmx ? undefined : "layout.ejs";
 };
 
-export const routes = async (fastify: fastify.FastifyInstance) => {
-  /**
-   * UI Routes
-   */
+export const uiRoutes = async (fastify: fastify.FastifyInstance) => {
   fastify.get("/", async (request, reply) => {
     const layout = layoutForHtmx(request);
-    return reply.view("index.ejs", { title: "Home" }, layout ? { layout } : {});
+    return reply.view(
+      "pages/index.ejs",
+      { title: "Home" },
+      layout ? { layout } : {},
+    );
+  });
+
+  fastify.get("/login", async (request, reply) => {
+    const layout = layoutForHtmx(request);
+    return reply.view(
+      "login.ejs",
+      { title: "Login", error: undefined },
+      layout ? { layout } : {},
+    );
+  });
+
+  fastify.post("/login", async (request, reply) => {
+    const layout = layoutForHtmx(request);
+    const { email, password } = request.body as {
+      email: string;
+      password: string;
+    };
+    const knex = getKnex();
+    const user = await knex("users")
+      .select("password_hash", "salt", "id")
+      .where("email", email)
+      .first();
+    if (user) {
+      const { password_hash, salt } = user;
+      if (verifyPassword(password, salt, password_hash)) {
+        // Set session userId
+        if (request.session) {
+          request.session.userId = user.id;
+        }
+        return reply.redirect("/quiz");
+      } else {
+        console.log(`Invalid password attempt for email: ${email}`);
+      }
+    } else {
+      console.log(`Login attempt with unknown email: ${email}`);
+    }
+    return reply.view(
+      "login.ejs",
+      { error: "Invalid email or password" },
+      layout ? { layout } : {},
+    );
+  });
+
+  fastify.post("/logout", async (request, reply) => {
+    const layout = layoutForHtmx(request);
+    if (request.session) {
+      request.session.destroy((err) => {
+        if (err) {
+          console.error("Error destroying session:", err);
+        }
+      });
+    }
+    return reply.view("partials/logout-message.ejs", layout ? { layout } : {});
   });
 
   fastify.get("/quiz", async (request, reply) => {
     const layout = layoutForHtmx(request);
     return reply.view(
-      "quiz.ejs",
+      "pages/quiz.ejs",
       {
         userAgent: request.headers["user-agent"],
         time: new Date().toISOString(),
@@ -56,7 +106,9 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
   }
 
   fastify.get("/sentence", async (request, reply) => {
-    const id = (request.query as { id?: number }).id;
+    const query = request.query as { id?: string };
+    const id = query.id ? parseInt(query.id, 10) : undefined;
+    console.log("Fetching sentence with id:", id);
     const data = await getSentenceViewData(id);
 
     if (!data) {
@@ -70,7 +122,10 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
 
   fastify.get("/random", async (request, reply) => {
     const layout = layoutForHtmx(request);
-    const id = (request.query as { id?: number }).id;
+    const query = request.query as { id?: string };
+    const id = query.id ? parseInt(query.id, 10) : undefined;
+    console.log("Random route - raw query:", request.query);
+    console.log("Random route - parsed id:", id);
     const data = await getSentenceViewData(id);
 
     if (!data) {
@@ -83,7 +138,7 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
       );
     }
 
-    return reply.view("random.ejs", data, layout ? { layout } : {});
+    return reply.view("pages/random.ejs", data, layout ? { layout } : {});
   });
 
   const RANDOM_PROGRESS_VALUE = Math.floor(Math.random() * 100);
@@ -91,7 +146,7 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
   fastify.get("/progress", async (request, reply) => {
     const layout = layoutForHtmx(request);
     return reply.view(
-      "progress.ejs",
+      "pages/progress.ejs",
       {
         progressValue: RANDOM_PROGRESS_VALUE,
       },
@@ -108,20 +163,12 @@ export const routes = async (fastify: fastify.FastifyInstance) => {
     });
   });
 
-  fastify.get("/audio/:id", async (request, reply) => {
-    const id = (request.params as { id: string }).id;
-    const audio = await getSentenceTatoebaAudio(getKnex(), parseInt(id, 10));
-    return reply.type("audio/ogg; codecs=vorbis").send(audio);
-  });
-
   fastify.get("/privacy", async (request, reply) => {
     const layout = layoutForHtmx(request);
     return reply.view(
-      "privacy.ejs",
+      "pages/privacy.ejs",
       { title: "Privacy Policy" },
       layout ? { layout } : {},
     );
   });
 };
-
-export default routes;

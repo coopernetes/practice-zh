@@ -18,16 +18,9 @@
 
   <body>
     <header class="container-fluid">
-      <div class="grid">
-        <div style="align-content: start; justify-self: start">
-          <h1><a href="/" style="text-decoration: none">Practice 中文</a></h1>
-          <p><i>学中文（普通话）</i></p>
-        </div>
-        <div style="align-content: start; justify-self: end">
-          <span id="theme-toggle-wrapper">
-            <%- include('partials/theme-button', { theme: 'dark' }) %>
-          </span>
-        </div>
+      <div style="align-content: start; justify-self: start">
+        <h1><a href="/" style="text-decoration: none">Practice 中文</a></h1>
+        <p><i>学习中文（普通话）</i></p>
       </div>
       <nav>
         <ul>
@@ -63,16 +56,39 @@
           </li>
         </ul>
         <ul>
-          <li><a href="/settings" role="button">Settings</a></li>
           <li>
-            <a
-              href="https://coopernetes.github.io/practice-zh"
-              role="button"
-              target="_blank"
-              class="external"
-              style="padding-right: 1.3rem"
-              >Docs</a
+            <span id="logout-message"></span>
+            <div
+              style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem"
             >
+              <a
+                href="/login"
+                role="button"
+                class="login-button"
+                style="padding: 0.5rem 1rem; margin: 0"
+                >Login</a
+              >
+              <a
+                hx-post="/logout"
+                role="button"
+                class="logout-button"
+                style="padding: 0.5rem 1rem; margin: 0"
+                hx-target="#logout-message"
+                hx-swap="innerHTML"
+                >Logout</a
+              >
+              <a
+                href="https://coopernetes.github.io/practice-zh"
+                role="button"
+                target="_blank"
+                class="external-link-button"
+                style="padding: 0.5rem 1rem; margin: 0"
+                >Docs</a
+              >
+              <span id="theme-toggle-wrapper" style="margin: 0">
+                <%- include('partials/theme-button', { theme: 'dark' }) %>
+              </span>
+            </div>
           </li>
         </ul>
       </nav>
