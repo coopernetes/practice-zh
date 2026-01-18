@@ -98,7 +98,7 @@ async function parseSentence(sentence) {
       // Try character-by-character fallback for multi-character segments
       if (segment.length > 1) {
         console.log(
-          `Segment not found: ${segment}, trying character-by-character`
+          `Segment not found: ${segment}, trying character-by-character`,
         );
         let allFound = true;
         const charWords = [];
@@ -243,6 +243,28 @@ async function getRandomSentences(limit = 5) {
 }
 
 (async () => {
+  const sentenceId = process.argv[2];
+  if (sentenceId) {
+    const db = knex(dbConfig);
+    const row = await db("sentences_tatoeba")
+      .select("zh")
+      .where({ id: sentenceId })
+      .first();
+    await db.destroy();
+
+    if (row) {
+      const words = await parseSentence(row.zh);
+      if (words.length) {
+        const phraseComponent = await createPhraseComponent(row.zh, words);
+        console.log(JSON.stringify(phraseComponent, null, 2));
+      } else {
+        console.log("No words parsed.");
+      }
+    } else {
+      console.log(`Sentence with ID ${sentenceId} not found.`);
+    }
+    return;
+  }
   // Manual test cases with proper nouns
   const manualTests = [
     "鲍勃也会开车。",
