@@ -1,4 +1,5 @@
 <div class="grid">
+  <input type="hidden" name="id" value="<%= id %>" />
   <div
     style="
       display: grid;
@@ -42,7 +43,7 @@
     <details>
       <summary>Reveal audio</summary>
       <audio controls>
-        <source src="/audio/<%= audio_id %>" type="audio/ogg" />
+        <source src="/api/audio/<%= audio_id %>" type="audio/ogg" />
         Your browser does not support the audio element.
       </audio>
     </details>

@@ -97,6 +97,7 @@ export const uiRoutes = async (fastify: fastify.FastifyInstance) => {
       .join(" ");
 
     return {
+      id: sentence.id,
       zh_sentence: sentence.zh,
       en_sentence: sentence.en,
       pinyin,

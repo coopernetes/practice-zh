@@ -5,6 +5,7 @@
       hx-target="this"
       hx-trigger="revealed"
       hx-swap="outerHTML"
+      <% if (typeof id !== 'undefined') { %>hx-vals='{"id": "<%= id %>"}'<% } %>
     >
       Loading...
     </div>
