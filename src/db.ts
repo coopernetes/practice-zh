@@ -37,8 +37,8 @@ declare module "knex/types/tables.js" {
     id: number;
     zh: string;
     en: string;
-    zh_id?: number;
-    en_id?: number;
+    zh_id: number;
+    en_id: number;
   }
 
   interface SentenceTatoebaAudio {
@@ -67,7 +67,7 @@ declare module "knex/types/tables.js" {
 
   interface Phrase {
     id: number;
-    english_text: string;
+    en_text: string;
     pattern_type?: string; // e.g., 'svo', 'adj_predicate', 'serial_verb', 'yes_no_q', etc.
     template_string: string;
   }
@@ -75,7 +75,8 @@ declare module "knex/types/tables.js" {
   interface PhraseComponent {
     id: number;
     phrase_id: number;
-    word_id: number;
+    word_id?: number;
+    literal_zh?: string;
     slot_key: string;
     position: number;
     is_optional: boolean;
@@ -85,6 +86,10 @@ declare module "knex/types/tables.js" {
     id: number;
     user_name: string;
     email: string;
+    password_hash: string;
+    salt: string;
+    created_at: Date;
+    password_expires_at: Date;
   }
 
   interface UserBank {
@@ -94,9 +99,15 @@ declare module "knex/types/tables.js" {
     tags: string;
   }
 
-  interface UserBankWord {
+  interface UserBankWordHsk {
     id: number;
-    word_id: number;
+    word_hsk_id: number;
+    bank_id: number;
+  }
+
+  interface UserBankWordAdditional {
+    id: number;
+    word_additional_id: number;
     bank_id: number;
   }
 
@@ -140,10 +151,20 @@ declare module "knex/types/tables.js" {
       UserBank,
       Omit<UserBank, "id">
     >;
-    user_bank_words: UserBankWord;
-    user_bank_words_composite: Knex.CompositeTableType<
-      UserBankWord,
-      Omit<UserBankWord, "id">
+    users: User;
+    users_composite: Knex.CompositeTableType<
+      User,
+      Omit<User, "id" | "created_at" | "password_expires_at">
+    >;
+    user_bank_words_hsk: UserBankWordHsk;
+    user_bank_words_hsk_composite: Knex.CompositeTableType<
+      UserBankWordHsk,
+      Omit<UserBankWordHsk, "id">
+    >;
+    user_bank_words_additional: UserBankWordAdditional;
+    user_bank_words_additional_composite: Knex.CompositeTableType<
+      UserBankWordAdditional,
+      Omit<UserBankWordAdditional, "id">
     >;
   }
 }
