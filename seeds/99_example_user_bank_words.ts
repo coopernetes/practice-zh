@@ -49,7 +49,6 @@ export async function seed(knex: Knex): Promise<void> {
       password_hash: TEST_PASSWORD_HASH,
       salt: TEST_SALT,
       created_at: knex.fn.now(),
-      password_expires_at: knex.raw("(datetime('now', '+30 days'))"),
     })
     .returning<Pick<{ id: number; user_name: string; email: string }, "id">[]>(
       "id",

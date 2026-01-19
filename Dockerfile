@@ -25,9 +25,6 @@ COPY seeds/ ./seeds/
 
 # vendor files are symlinks in the source repo, so we need to copy them individually
 COPY vendor/htmx/dist/htmx.min.js ./vendor/htmx/dist/htmx.min.js
-COPY vendor/pico/css/pico.amber.min.css ./vendor/pico/css/pico.amber.min.css
-COPY vendor/pico/css/pico.colors.min.css ./vendor/pico/css/pico.colors.min.css
-COPY vendor/pico/css/pico.min.css ./vendor/pico/css/pico.min.css
 COPY vendor/pico/css/pico.slate.min.css ./vendor/pico/css/pico.slate.min.css
 COPY vendor/complete-hsk-vocabulary/complete.min.json ./vendor/complete-hsk-vocabulary/complete.min.json
 

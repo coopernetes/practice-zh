@@ -15,7 +15,16 @@ import { knexPlugin, setKnex } from "./db.js";
 import knex from "knex";
 import knexConfig from "../knexfile.js";
 
-const __dirname = import.meta.dirname;
+const getProjectRoot = () => {
+  // In dev: /path/to/project/src/main.ts -> /path/to/project
+  // In prod: /app/dist/src/main.js -> /app
+  const here = import.meta.dirname;
+  if (process.env.NODE_ENV === "production") {
+    return join(here, "..", "..");
+  } else {
+    return join(here, "..");
+  }
+};
 
 declare module "fastify" {
   interface FastifyReply {
@@ -42,15 +51,16 @@ export const setupFastify = async (): Promise<FastifyInstance> => {
   const fastify = Fastify({
     logger,
   });
+  const projectRoot = getProjectRoot();
   fastify.register(fastifyStatic, {
-    root: join(__dirname, "..", "public"),
+    root: join(projectRoot, "public"),
     prefix: "/public/",
   });
   fastify.register(fastifyView, {
     engine: {
       ejs: await import("ejs"),
     },
-    root: join(__dirname, "..", "views"),
+    root: join(projectRoot, "views"),
   });
   fastify.register(fastifyFormbody);
   fastify.register(fastifyCookie);

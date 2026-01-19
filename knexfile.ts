@@ -11,7 +11,7 @@ const config: { [key: string]: Knex.Config } = {
     useNullAsDefault: true,
   },
   production: {
-    client: "postgresql",
+    client: "pg",
     connection: {
       database: "postgres",
       user: "postgres",

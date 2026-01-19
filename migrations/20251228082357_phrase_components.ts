@@ -12,7 +12,7 @@ export async function up(knex: Knex): Promise<void> {
       .inTable("phrases")
       .onDelete("CASCADE");
     // Allow for sentences which contain words not in our dictionary such as names
-    table.integer("word_id").references("id").inTable("words").nullable();
+    table.integer("word_id").references("id").inTable("words_hsk").nullable();
     table.string("literal_zh");
     table.string("slot_key"); // e.g., 'subj', 'verb_1', 'measure'
     table.integer("position").notNullable(); // Order of display

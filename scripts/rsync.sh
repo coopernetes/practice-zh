@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+rsync -av --delete \
+  --include='vendor/' \
+  --include='vendor/complete-hsk-vocabulary/' \
+  --include='vendor/complete-hsk-vocabulary/complete.min.json' \
+  --include='vendor/htmx/' \
+  --include='vendor/htmx/dist/' \
+  --include='vendor/htmx/dist/htmx.min.js' \
+  --include='vendor/pico/' \
+  --include='vendor/pico/css/' \
+  --include='vendor/pico/css/pico.slate.min.css' \
+  --exclude='vendor/*' \
+  --exclude='vendor/**' \
+  --exclude='docusaurus/*' \
+  --exclude='node_modules/*' \
+  --exclude='.git/*' \
+  --exclude='data/*' \
+  --exclude=".env*" \
+  "$(pwd)/" root@138.197.144.186:/root/practice-zh

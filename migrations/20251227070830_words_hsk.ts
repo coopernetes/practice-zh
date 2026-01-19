@@ -13,8 +13,8 @@ export async function up(knex: Knex): Promise<void> {
     table.text("meanings").notNullable();
     table.text("part_of_speech").notNullable();
     table.integer("frequency").notNullable();
-    table.integer("hsk2_level").nullable();
-    table.integer("hsk3_level").nullable();
+    table.string("hsk2_level").nullable();
+    table.string("hsk3_level").nullable();
   });
 
   await knex.schema.raw(

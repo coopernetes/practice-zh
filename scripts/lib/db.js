@@ -5,6 +5,7 @@
  */
 
 import knex from "knex";
+import { profileEnd } from "node:console";
 
 const DB_PATH = "./practice-zh.sqlite3";
 
@@ -13,11 +14,31 @@ const DB_PATH = "./practice-zh.sqlite3";
  * @returns {import('knex').Knex}
  */
 export function createDb() {
-  return knex({
-    client: "better-sqlite3",
-    connection: { filename: DB_PATH },
-    useNullAsDefault: true,
-  });
+  const configs = {
+    development: {
+      client: "better-sqlite3",
+      connection: { filename: DB_PATH },
+      useNullAsDefault: true,
+    },
+    production: {
+      client: "pg",
+      connection: {
+        database: "postgres",
+        user: "postgres",
+        password: "postgres",
+        host: process.env.POSTGRES_HOST || "localhost",
+        port: Number(process.env.POSTGRES_PORT) || 5432,
+      },
+      pool: {
+        min: 2,
+        max: 10,
+      },
+      migrations: {
+        tableName: "knex_migrations",
+      },
+    },
+  };
+  return knex(configs[process.env.NODE_ENV || "development"]);
 }
 
 /**
