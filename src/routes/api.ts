@@ -4,8 +4,9 @@ import {
   getSentenceById,
   getRandomSentence,
   getSentenceTatoebaAudio,
+  getComponentsForSentence,
+  componentsSuitableForUser,
 } from "../corpus.js";
-import type { UserSettings } from "knex/types/tables.js";
 
 export const apiRoutes = async (fastify: fastify.FastifyInstance) => {
   fastify.get("/api/audio/:id", async (request, reply) => {
@@ -16,13 +17,31 @@ export const apiRoutes = async (fastify: fastify.FastifyInstance) => {
 
   fastify.get("/api/sentence", async (request, reply) => {
     const id = (request.query as { id?: number }).id;
-    const sentence = id
-      ? await getSentenceById(getKnex(), id)
-      : await getRandomSentence(getKnex());
-    if (!sentence) {
-      return reply.code(404).send({ error: "Sentence not found" });
+    if (id) {
+      const sentence = await getSentenceById(getKnex(), id);
+      if (!sentence) {
+        return reply.code(404).send({ error: "Sentence not found" });
+      }
+      return reply.send(sentence);
     }
-    return reply.send(sentence);
+    let attempts = 3;
+    while (attempts !== 0) {
+      const sentence = await getRandomSentence(getKnex());
+      if (!sentence) {
+        return reply.code(500).send({ error: "Failed to retrieve sentence" });
+      }
+      if (
+        await componentsSuitableForUser(
+          getKnex(),
+          sentence.components,
+          request.session.userId!,
+        )
+      ) {
+        return reply.send(sentence);
+      }
+      attempts--;
+    }
+    return reply.code(404).send({ error: "No suitable sentence found" });
   });
 
   fastify.post("/api/user/settings", async (request, reply) => {

@@ -265,3 +265,146 @@ export const getSentenceTatoebaAudio = async (
 
   return audioEntry ? Buffer.from(audioEntry.audio_blob) : undefined;
 };
+
+export interface UserBankWord {
+  bank_id: number;
+  simplified_zh: string;
+  pinyin?: string;
+  definitions?: string;
+  source_type: "hsk" | "additional" | "not_found";
+}
+
+export const getUserBanks = async (
+  knex: Knex,
+  userId: number,
+): Promise<{ id: number; name: string }[]> => {
+  const banks = await knex("user_banks")
+    .select("id", "name")
+    .where("user_id", userId);
+  return banks;
+};
+
+export const getUserBankWords = async (
+  knex: Knex,
+  userId: number,
+): Promise<UserBankWord[]> => {
+  const userWords = await knex.raw(
+    `
+SELECT
+    w_hsk.id AS word_id,
+    w_hsk.simplified_zh,
+    w_hsk.pinyin,
+    w_hsk.meanings AS definition,
+    ubwh.bank_id,
+    'hsk' AS source_type
+FROM words_hsk AS w_hsk
+JOIN user_bank_words_hsk ubwh ON w_hsk.id = ubwh.word_hsk_id
+JOIN user_banks ub ON ubwh.bank_id = ub.id
+WHERE ub.user_id = ?
+
+UNION ALL
+
+SELECT
+    w_addl.id AS word_id,
+    w_addl.simplified_zh,
+    w_addl.pinyin,
+    w_addl.english AS definition,
+    ubwa.bank_id,
+    'additional' AS source_type
+FROM words_additional AS w_addl
+JOIN user_bank_words_additional ubwa ON w_addl.id = ubwa.word_additional_id
+JOIN user_banks ub ON ubwa.bank_id = ub.id
+WHERE ub.user_id = ?`,
+    [userId, userId],
+  );
+
+  function parsePinyin(pinyin: string): string {
+    try {
+      const parsed = JSON.parse(pinyin);
+      if (Array.isArray(parsed)) return parsed.join(", ");
+      return String(parsed);
+    } catch {
+      return pinyin; // fallback for plain string
+    }
+  }
+
+  function parseDefinition(definition: string): string {
+    try {
+      const parsed = JSON.parse(definition);
+      if (Array.isArray(parsed) && Array.isArray(parsed[0])) {
+        // 2D array: flatten and join
+        return parsed.map((arr: string[]) => arr.join("; ")).join("; ");
+      } else if (Array.isArray(parsed)) {
+        // 1D array
+        return parsed.join("; ");
+      }
+      return String(parsed);
+    } catch {
+      return definition;
+    }
+  }
+
+  const words = userWords.map((row: any) => {
+    return {
+      bank_id: row.bank_id as number,
+      source_type: row.source_type as "hsk" | "additional" | "not_found",
+      simplified_zh: row.simplified_zh as string,
+      pinyin: parsePinyin(row.pinyin),
+      definitions: parseDefinition(row.definition),
+    };
+  });
+  return words;
+};
+
+export const componentsSuitableForUser = async (
+  knex: Knex,
+  components: WordComponent[],
+  userId: number,
+) => {
+  const user = await knex("users")
+    .select("id", "settings")
+    .where("id", userId)
+    .first();
+
+  if (!user) {
+    console.error(`User not found with id: ${userId}`);
+    return false;
+  }
+  const threshold = user.settings.unknown_word_threshold || 0;
+  const wordBank = user.settings.enable_word_banks || false;
+  if (!wordBank && threshold === 0) {
+    return true;
+  }
+  const userWords = await knex.raw(
+    `SELECT w_hsk.simplified_zh, 
+FROM words_hsk AS w_hsk
+JOIN user_bank_words_hsk ubwh ON w_hsk.id = ubwh.word_hsk_id
+JOIN user_banks ub ON ubwh.bank_id = ub.id
+WHERE ub.user_id = ? -- Replace with target User ID
+
+UNION ALL
+
+SELECT w_addl.simplified_zh, 
+FROM words_additional AS w_addl
+JOIN user_bank_words_additional ubwa ON w_addl.id = ubwa.word_additional_id
+JOIN user_banks ub ON ubwa.bank_id = ub.id
+WHERE ub.user_id = ?`,
+    [userId, userId],
+  );
+  const userWordSet = new Set<string>(
+    userWords.rows.map((row: any) => row.simplified_zh),
+  );
+
+  let unknownCount = 0;
+  for (const component of components) {
+    if (component.punctuation) {
+      continue;
+    }
+    if (!userWordSet.has(component.text)) {
+      unknownCount++;
+    }
+  }
+  return (
+    ((components.length - unknownCount) / components.length) * 100 >= threshold
+  );
+};

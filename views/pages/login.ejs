@@ -4,6 +4,9 @@
   <p style="color: red"><%= error %></p>
   <% } %>
   <form method="POST" action="/login">
+    <% if (typeof referrer !== "undefined") { %>
+    <input type="hidden" name="referrer" value="<%= referrer %>" />
+    <% } %>
     <input type="email" name="email" placeholder="Email" required />
     <input type="password" name="password" placeholder="Password" required />
     <button type="submit">Login</button>

@@ -1,5 +1,10 @@
 import fastify from "fastify";
-import { getRandomSentence, getSentenceById } from "../corpus.js";
+import {
+  getRandomSentence,
+  getSentenceById,
+  getUserBanks,
+  getUserBankWords,
+} from "../corpus.js";
 import { getKnex } from "../db.js";
 import { verifyPassword } from "../utils.js";
 
@@ -20,18 +25,20 @@ export const uiRoutes = async (fastify: fastify.FastifyInstance) => {
 
   fastify.get("/login", async (request, reply) => {
     const layout = layoutForHtmx(request);
+    const { referrer } = request.query as { referrer?: string };
     return reply.view(
       "pages/login.ejs",
-      { title: "Login", error: undefined },
+      { title: "Login", error: undefined, referrer },
       layout ? { layout } : {},
     );
   });
 
   fastify.post("/login", async (request, reply) => {
     const layout = layoutForHtmx(request);
-    const { email, password } = request.body as {
+    const { email, password, referrer } = request.body as {
       email: string;
       password: string;
+      referrer?: string;
     };
     const knex = getKnex();
     const user = await knex("users")
@@ -45,7 +52,11 @@ export const uiRoutes = async (fastify: fastify.FastifyInstance) => {
         if (request.session) {
           request.session.userId = user.id;
         }
-        return reply.redirect("/quiz");
+        if (referrer && referrer.startsWith("/")) {
+          return reply.redirect(referrer);
+        } else {
+          return reply.redirect("/");
+        }
       } else {
         console.log(`Invalid password attempt for email: ${email}`);
       }
@@ -54,7 +65,7 @@ export const uiRoutes = async (fastify: fastify.FastifyInstance) => {
     }
     return reply.view(
       "pages/login.ejs",
-      { error: "Invalid email or password" },
+      { error: "Invalid email or password", referrer },
       layout ? { layout } : {},
     );
   });
@@ -101,6 +112,76 @@ export const uiRoutes = async (fastify: fastify.FastifyInstance) => {
     return reply.view(
       "pages/settings.ejs",
       { title: "Settings", loggedIn: false },
+      layout ? { layout } : {},
+    );
+  });
+
+  fastify.get("/word-banks", async (request, reply) => {
+    const layout = layoutForHtmx(request);
+    const userId = request.session?.userId;
+
+    if (userId) {
+      const knex = getKnex();
+      const user = await knex("users")
+        .select("settings")
+        .where("id", userId)
+        .first();
+
+      if (user) {
+        try {
+          const userBanks = await getUserBanks(knex, userId);
+          if (userBanks.length === 0) {
+            return reply.view(
+              "pages/wordbanks.ejs",
+              {
+                title: "Word Banks",
+                loggedIn: true,
+                wordBanks: [],
+              },
+              layout ? { layout } : {},
+            );
+          }
+          const wordBanksWords = await getUserBankWords(knex, userId);
+          const uiObjs = new Map<number, any>();
+          wordBanksWords.forEach((wb) => {
+            if (!uiObjs.has(wb.bank_id)) {
+              uiObjs.set(wb.bank_id, {
+                name: userBanks.find((ub) => ub.id === wb.bank_id)?.name || "",
+                words: [],
+              });
+            }
+            uiObjs.get(wb.bank_id).words.push({
+              simplified_zh: wb.simplified_zh,
+              pinyin: wb.pinyin,
+              definitions: wb.definitions,
+              source_type: wb.source_type,
+            });
+          });
+          return reply.view(
+            "pages/wordbanks.ejs",
+            {
+              title: "Word Banks",
+              loggedIn: true,
+              wordBanks: Array.from(uiObjs.values()),
+            },
+            layout ? { layout } : {},
+          );
+        } catch (e) {}
+        return reply.view(
+          "pages/wordbanks.ejs",
+          {
+            title: "Word Banks",
+            loggedIn: true,
+            wordBanks: [],
+          },
+          layout ? { layout } : {},
+        );
+      }
+      console.error(`User with ID ${userId} not found.`);
+    }
+    return reply.view(
+      "pages/wordbanks.ejs",
+      { title: "Word Banks", loggedIn: false, wordBanks: [] },
       layout ? { layout } : {},
     );
   });

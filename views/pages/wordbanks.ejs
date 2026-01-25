@@ -1,0 +1,43 @@
+<section>
+  <h1>Word Banks</h1>
+  <% if (loggedIn) { %>
+  <% for (const bank of wordBanks) { %>
+  <article>
+    <h2><%= bank.name %></h2>
+    <% if (bank.words.length > 0) { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Word</th>
+          <th>Pinyin</th>
+          <th>Definition</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (const word of bank.words) { %>
+        <tr>
+          <td>
+            <strong><%= word.simplified_zh %></strong>
+          </td>
+          <td>
+            <em><%= word.pinyin %></em>
+          </td>
+          <td><%= word.definitions %></td>
+          <td><%= word.source_type %></td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+    <% } else { %>
+    <p>No words in this bank.</p>
+    <% } %>
+  </article>
+  <% } %>
+  <% } else { %>
+  <p>
+    Please <a href="/login?referrer=/word-banks">log in</a> to access your word
+    banks.
+  </p>
+  <% } %>
+</section>
